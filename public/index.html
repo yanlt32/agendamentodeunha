@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio de Unhas — Agendamento Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash">
+  <div class="splash-logo"><i class="fa-solid fa-scissors"></i></div>
+  <div class="splash-name">Studio <span>de Unhas</span></div>
+  <div class="splash-bar"></div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/">
+    <div class="brand-icon"><i class="fa-solid fa-scissors"></i></div>
+    <span class="brand-name">Studio de Unhas</span>
+  </a>
+  <div class="navbar-right">
+    <a href="#auth" class="btn btn-ghost btn-sm" onclick="scrollToAuth('login')">Entrar</a>
+    <a href="#auth" class="btn btn-primary btn-sm" onclick="scrollToAuth('register')">Criar conta</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <i class="fa-solid fa-star"></i>
+    Agendamento 100% online
+  </div>
+  <h1>Beleza ao seu<br><span>alcance</span></h1>
+  <p>Agende manicure, pedicure, gel e muito mais sem precisar ligar. Rápido, prático e disponível 24h.</p>
+  <div class="hero-cta">
+    <a href="#auth" class="btn btn-hero-primary btn-lg" onclick="scrollToAuth('register')">
+      <i class="fa-solid fa-calendar-plus"></i> Agendar agora
+    </a>
+    <a href="#services" class="btn btn-hero-outline btn-lg">
+      <i class="fa-solid fa-list"></i> Ver serviços
+    </a>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <p class="section-eyebrow">Por que nos escolher</p>
+  <h2 class="section-heading">Tudo que você precisa em um só lugar</h2>
+  <p class="section-sub">Experiência completa, do agendamento ao atendimento.</p>
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon-wrap"><i class="fa-regular fa-clock"></i></div>
+      <div class="feature-title">Agendamento 24h</div>
+      <div class="feature-desc">Agende a qualquer hora, de onde estiver, sem precisar ligar ou enviar mensagem.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon-wrap"><i class="fa-solid fa-star"></i></div>
+      <div class="feature-title">Profissionais qualificadas</div>
+      <div class="feature-desc">Equipe especializada com técnicas modernas e produtos de alta qualidade.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon-wrap"><i class="fa-solid fa-palette"></i></div>
+      <div class="feature-title">Variedade de serviços</div>
+      <div class="feature-desc">Manicure, pedicure, gel, nail art e muito mais para você escolher.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon-wrap"><i class="fa-solid fa-check-circle"></i></div>
+      <div class="feature-title">Confirmação imediata</div>
+      <div class="feature-desc">Acompanhe o status do seu agendamento em tempo real pelo painel.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Serviços -->
+<section id="services" class="services-section">
+  <div class="services-section-inner">
+    <p class="section-eyebrow">Cardápio de serviços</p>
+    <h2 class="section-heading">Nossos serviços</h2>
+    <p class="section-sub">Preços e duração estimada de cada procedimento.</p>
+    <div class="services-grid" id="publicServicesList">
+      <div class="loading"><div class="spinner"></div> Carregando...</div>
+    </div>
+  </div>
+</section>
+
+<!-- Auth -->
+<section id="auth" class="auth-section">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="fa-solid fa-scissors"></i></div>
+      <h2>Studio de Unhas</h2>
+      <p>Entre ou crie sua conta para agendar</p>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="auth-tabs">
+          <div class="auth-tab active" onclick="switchTab('login')">Entrar</div>
+          <div class="auth-tab" onclick="switchTab('register')">Criar conta</div>
+        </div>
+
+        <!-- Login -->
+        <div class="auth-panel active" id="loginPanel">
+          <div class="alert" id="loginAlert"></div>
+          <form id="loginForm" autocomplete="on">
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-input" id="loginEmail" placeholder="seu@email.com" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Senha</label>
+              <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
+            </button>
+          </form>
+          <p style="text-align:center; margin-top:1rem; font-size:.8rem; color:var(--text-muted);">
+            Não tem conta? <a href="#" onclick="switchTab('register')" style="color:var(--primary);font-weight:600;">Criar conta grátis</a>
+          </p>
+        </div>
+
+        <!-- Registro -->
+        <div class="auth-panel" id="registerPanel">
+          <div class="alert" id="registerAlert"></div>
+          <form id="registerForm" autocomplete="on">
+            <div class="form-group">
+              <label class="form-label">Nome completo</label>
+              <input type="text" class="form-input" id="regName" placeholder="Seu nome completo" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-input" id="regEmail" placeholder="seu@email.com" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone <span style="color:var(--text-muted);font-weight:400;text-transform:none">(opcional)</span></label>
+              <input type="tel" class="form-input" id="regPhone" placeholder="(11) 99999-9999" autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Senha</label>
+              <input type="password" class="form-input" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+              <i class="fa-solid fa-user-plus"></i> Criar conta
+            </button>
+          </form>
+          <p style="text-align:center; margin-top:1rem; font-size:.8rem; color:var(--text-muted);">
+            Já tem conta? <a href="#" onclick="switchTab('login')" style="color:var(--primary);font-weight:600;">Entrar</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>Studio de Unhas</strong> &mdash; Agendamento Online &copy; 2024
+</footer>
+
+<script>
+  // Splash
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('hidden');
+    }, 1600);
+  });
+
+  // Auth check
+  fetch('/api/auth/me').then(r => r.json()).then(d => {
+    if (d.user) window.location.href = d.user.role === 'admin' ? '/admin' : '/client';
+  }).catch(() => {});
+
+  // Serviços públicos
+  fetch('/api/client/services').then(r => r.json()).then(services => {
+    const el = document.getElementById('publicServicesList');
+    if (!services.length) {
+      el.innerHTML = '<p style="color:var(--text-muted)">Nenhum serviço disponível.</p>';
+      return;
+    }
+    el.innerHTML = services.map(s => `
+      <div class="landing-service-card">
+        <div class="landing-service-name">${s.name}</div>
+        <div class="landing-service-desc">${s.description}</div>
+        <div class="landing-service-footer">
+          <span class="landing-service-price">R$ ${s.price.toFixed(2)}</span>
+          <span class="landing-service-dur"><i class="fa-regular fa-clock" style="font-size:.75rem"></i> ${s.duration} min</span>
+        </div>
+      </div>
+    `).join('');
+  }).catch(() => {});
+
+  function scrollToAuth(tab) {
+    switchTab(tab);
+    document.getElementById('auth').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'login')));
+    document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+    document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
+  }
+
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'circle-exclamation'}"></i> ${msg}`;
+    el.className = `alert alert-${type} show`;
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Entrando...';
+    try {
+      const r = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value })
+      });
+      const data = await r.json();
+      if (data.success) window.location.href = data.role === 'admin' ? '/admin' : '/client';
+      else showAlert('loginAlert', data.error, 'error');
+    } catch { showAlert('loginAlert', 'Erro de conexão. Tente novamente.', 'error'); }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar';
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Criando conta...';
+    try {
+      const r = await fetch('/api/auth/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('regName').value,
+          email: document.getElementById('regEmail').value,
+          phone: document.getElementById('regPhone').value,
+          password: document.getElementById('regPassword').value
+        })
+      });
+      const data = await r.json();
+      if (data.success) window.location.href = '/client';
+      else showAlert('registerAlert', data.error, 'error');
+    } catch { showAlert('registerAlert', 'Erro de conexão. Tente novamente.', 'error'); }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar conta';
+  });
+</script>
+</body>
+</html>

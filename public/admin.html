@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin — Studio de Unhas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/admin">
+    <div class="brand-icon"><i class="fa-solid fa-scissors"></i></div>
+    <span class="brand-name">Studio de Unhas</span>
+    <span class="brand-badge">Admin</span>
+  </a>
+  <div class="navbar-right">
+    <span class="nav-user" id="adminName"></span>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+    </button>
+  </div>
+</nav>
+
+<div class="admin-layout">
+
+  <aside class="sidebar">
+    <p class="sidebar-section-label">Menu</p>
+    <button class="sidebar-item active" onclick="showSection('dashboard', this)">
+      <i class="fa-solid fa-chart-pie"></i> Dashboard
+    </button>
+    <button class="sidebar-item" onclick="showSection('appointments', this)">
+      <i class="fa-regular fa-calendar-check"></i> Agendamentos
+    </button>
+    <button class="sidebar-item" onclick="showSection('services', this)">
+      <i class="fa-solid fa-sparkles"></i> Serviços
+    </button>
+    <button class="sidebar-item" onclick="showSection('clients', this)">
+      <i class="fa-solid fa-users"></i> Clientes
+    </button>
+    <p class="sidebar-section-label" style="margin-top:.5rem;">Sistema</p>
+    <button class="sidebar-item" onclick="showSection('settings', this)">
+      <i class="fa-solid fa-gear"></i> Configurações
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- Dashboard -->
+    <section class="page-section active" id="sec-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Visão geral do seu negócio</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">
+          <i class="fa-solid fa-rotate-right"></i> Atualizar
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon rose"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-value" id="st-clients">—</div>
+          <div class="stat-label">Clientes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-regular fa-calendar"></i></div>
+          <div class="stat-value" id="st-total">—</div>
+          <div class="stat-label">Total agendamentos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber"><i class="fa-solid fa-sun"></i></div>
+          <div class="stat-value" id="st-today">—</div>
+          <div class="stat-label">Hoje</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon rose"><i class="fa-regular fa-clock"></i></div>
+          <div class="stat-value" id="st-pending">—</div>
+          <div class="stat-label">Pendentes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-value" id="st-confirmed">—</div>
+          <div class="stat-label">Confirmados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon plum"><i class="fa-solid fa-brazilian-real-sign"></i></div>
+          <div class="stat-value" id="st-revenue">—</div>
+          <div class="stat-label">Receita confirmada</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-regular fa-calendar-day"></i> Agendamentos de hoje</div>
+          <span id="todayDate" style="font-size:.8rem;color:var(--text-muted)"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Horário</th><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody id="todayTable"><tr><td colspan="6"><div class="loading"><div class="spinner"></div> Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agendamentos -->
+    <section class="page-section" id="sec-appointments">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Agendamentos</div>
+          <div class="page-subtitle">Gerencie todos os agendamentos</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="filter-bar">
+          <div class="form-group">
+            <label class="form-label">Data</label>
+            <input type="date" class="form-input" id="filterDate" onchange="loadAppointments()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="filterStatus" onchange="loadAppointments()">
+              <option value="">Todos</option>
+              <option value="pending">Pendente</option>
+              <option value="confirmed">Confirmado</option>
+              <option value="completed">Concluído</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="clearFilters()">
+            <i class="fa-solid fa-xmark"></i> Limpar
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody id="appointmentsTable"><tr><td colspan="7"><div class="loading"><div class="spinner"></div> Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Serviços -->
+    <section class="page-section" id="sec-services">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Serviços</div>
+          <div class="page-subtitle">Gerencie o cardápio de serviços</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openServiceModal()">
+          <i class="fa-solid fa-plus"></i> Novo serviço
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Descrição</th><th>Preço</th><th>Duração</th><th>Status</th><th></th></tr></thead>
+            <tbody id="servicesTable"><tr><td colspan="6"><div class="loading"><div class="spinner"></div> Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clientes -->
+    <section class="page-section" id="sec-clients">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Clientes</div>
+          <div class="page-subtitle" id="clientCount">Carregando...</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cadastro</th></tr></thead>
+            <tbody id="clientsTable"><tr><td colspan="4"><div class="loading"><div class="spinner"></div> Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configurações -->
+    <section class="page-section" id="sec-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Configurações</div>
+          <div class="page-subtitle">Horários e funcionamento do salão</div>
+        </div>
+      </div>
+      <div class="card" style="max-width:520px;">
+        <div class="card-body">
+          <div class="alert" id="settingsAlert"></div>
+          <form id="settingsForm">
+            <div class="form-group">
+              <label class="form-label">Nome do Salão</label>
+              <input type="text" class="form-input" id="salonName">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Abertura</label>
+                <input type="time" class="form-input" id="openTime">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fechamento</label>
+                <input type="time" class="form-input" id="closeTime">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duração dos slots</label>
+              <select class="form-select" id="slotDuration">
+                <option value="30">30 minutos</option>
+                <option value="60">60 minutos</option>
+                <option value="90">90 minutos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dias de funcionamento</label>
+              <div class="days-wrap">
+                <label class="day-toggle"><input type="checkbox" value="0" id="wd0"> Dom</label>
+                <label class="day-toggle"><input type="checkbox" value="1" id="wd1"> Seg</label>
+                <label class="day-toggle"><input type="checkbox" value="2" id="wd2"> Ter</label>
+                <label class="day-toggle"><input type="checkbox" value="3" id="wd3"> Qua</label>
+                <label class="day-toggle"><input type="checkbox" value="4" id="wd4"> Qui</label>
+                <label class="day-toggle"><input type="checkbox" value="5" id="wd5"> Sex</label>
+                <label class="day-toggle"><input type="checkbox" value="6" id="wd6"> Sáb</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-floppy-disk"></i> Salvar configurações
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal Serviço -->
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="serviceModalTitle">Novo serviço</h3>
+      <button class="modal-close" onclick="closeServiceModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert" id="serviceAlert"></div>
+      <form id="serviceForm">
+        <input type="hidden" id="serviceId">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" id="serviceName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <input type="text" class="form-input" id="serviceDesc" placeholder="Descrição breve do serviço">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Preço (R$)</label>
+            <input type="number" class="form-input" id="servicePrice" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duração (min)</label>
+            <input type="number" class="form-input" id="serviceDuration" min="15" step="15" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="check-label">
+            <input type="checkbox" id="serviceActive" checked> Serviço ativo (visível para clientes)
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeServiceModal()">Cancelar</button>
+      <button class="btn btn-primary" id="serviceSubmitBtn" onclick="submitService()">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agendamento -->
+<div class="modal-overlay" id="aptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Gerenciar agendamento</h3>
+      <button class="modal-close" onclick="closeAptModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="aptModalBody"></div>
+    <div class="modal-footer modal-footer-spread" id="aptModalFooter"></div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let currentApt = null;
+
+// Auth
+fetch('/api/auth/me').then(r => r.json()).then(d => {
+  if (!d.user || d.user.role !== 'admin') { window.location.href = '/'; return; }
+  currentUser = d.user;
+  document.getElementById('adminName').textContent = d.user.name;
+  const today = new Date();
+  document.getElementById('todayDate').textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  loadDashboard();
+  loadSettings();
+}).catch(() => window.location.href = '/');
+
+function logout() {
+  fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/');
+}
+
+function showSection(name, el) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'appointments') loadAppointments();
+  if (name === 'services') loadServices();
+  if (name === 'clients') loadClients();
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const [stats, apts] = await Promise.all([
+    fetch('/api/admin/stats').then(r => r.json()),
+    fetch('/api/admin/appointments?date=' + today).then(r => r.json())
+  ]);
+
+  document.getElementById('st-clients').textContent = stats.total_clients;
+  document.getElementById('st-total').textContent = stats.total_appointments;
+  document.getElementById('st-today').textContent = stats.today_appointments;
+  document.getElementById('st-pending').textContent = stats.pending;
+  document.getElementById('st-confirmed').textContent = stats.confirmed;
+  document.getElementById('st-revenue').textContent = 'R$ ' + stats.revenue.toFixed(2);
+
+  renderAppointmentTable('todayTable', apts, 6, false);
+}
+
+// ─── AGENDAMENTOS ───────────────────────────────────────
+async function loadAppointments() {
+  const date = document.getElementById('filterDate').value;
+  const status = document.getElementById('filterStatus').value;
+  let url = '/api/admin/appointments?';
+  if (date) url += 'date=' + date + '&';
+  if (status) url += 'status=' + status;
+  const apts = await fetch(url).then(r => r.json());
+  renderAppointmentTable('appointmentsTable', apts, 7, true);
+}
+
+function clearFilters() {
+  document.getElementById('filterDate').value = '';
+  document.getElementById('filterStatus').value = '';
+  loadAppointments();
+}
+
+function renderAppointmentTable(tbodyId, apts, cols, showDate) {
+  const tb = document.getElementById(tbodyId);
+  if (!apts.length) {
+    tb.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum agendamento encontrado</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = apts.map(a => `
+    <tr>
+      ${showDate ? `<td>${fmtDate(a.date)}</td>` : ''}
+      <td><strong>${a.time}</strong></td>
+      <td>
+        <div>${a.user_name}</div>
+        <div class="td-sub">${a.user_email}</div>
+      </td>
+      <td>${a.service_name}</td>
+      <td>R$ ${a.price.toFixed(2)}</td>
+      <td><span class="badge badge-${a.status}">${statusLabel(a.status)}</span></td>
+      <td><button class="btn btn-secondary btn-sm" onclick='openAptModal(${JSON.stringify(a)})'>Gerenciar</button></td>
+    </tr>
+  `).join('');
+}
+
+function openAptModal(apt) {
+  currentApt = apt;
+  document.getElementById('aptModal').classList.add('open');
+  document.getElementById('aptModalBody').innerHTML = `
+    <div style="margin-bottom:1rem;">
+      <div class="detail-row"><span class="detail-key">Cliente</span><span class="detail-val">${apt.user_name}</span></div>
+      <div class="detail-row"><span class="detail-key">E-mail</span><span class="detail-val">${apt.user_email}</span></div>
+      <div class="detail-row"><span class="detail-key">Serviço</span><span class="detail-val">${apt.service_name}</span></div>
+      <div class="detail-row"><span class="detail-key">Data</span><span class="detail-val">${fmtDate(apt.date)} às ${apt.time}</span></div>
+      <div class="detail-row"><span class="detail-key">Duração</span><span class="detail-val">${apt.duration} min</span></div>
+      <div class="detail-row"><span class="detail-key">Valor</span><span class="detail-val">R$ ${apt.price.toFixed(2)}</span></div>
+      <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="badge badge-${apt.status}">${statusLabel(apt.status)}</span></span></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Alterar status</label>
+      <select class="form-select" id="aptStatusSelect">
+        <option value="pending"   ${apt.status==='pending'  ?'selected':''}>Pendente</option>
+        <option value="confirmed" ${apt.status==='confirmed'?'selected':''}>Confirmado</option>
+        <option value="completed" ${apt.status==='completed'?'selected':''}>Concluído</option>
+        <option value="cancelled" ${apt.status==='cancelled'?'selected':''}>Cancelado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações internas</label>
+      <textarea class="form-textarea" id="aptNotes" placeholder="Anotações internas sobre este agendamento...">${apt.notes||''}</textarea>
+    </div>
+  `;
+  document.getElementById('aptModalFooter').innerHTML = `
+    <button class="btn btn-danger btn-sm" onclick="deleteApt(${apt.id})"><i class="fa-solid fa-trash"></i> Excluir</button>
+    <div style="display:flex;gap:.5rem;">
+      <button class="btn btn-secondary" onclick="closeAptModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="updateApt(${apt.id})"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+    </div>
+  `;
+}
+
+function closeAptModal() { document.getElementById('aptModal').classList.remove('open'); currentApt = null; }
+
+async function updateApt(id) {
+  await fetch(`/api/admin/appointments/${id}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: document.getElementById('aptStatusSelect').value, notes: document.getElementById('aptNotes').value })
+  });
+  closeAptModal(); loadAppointments(); loadDashboard();
+}
+
+async function deleteApt(id) {
+  if (!confirm('Excluir este agendamento permanentemente?')) return;
+  await fetch(`/api/admin/appointments/${id}`, { method: 'DELETE' });
+  closeAptModal(); loadAppointments(); loadDashboard();
+}
+
+// ─── SERVIÇOS ───────────────────────────────────────────
+async function loadServices() {
+  const services = await fetch('/api/admin/services').then(r => r.json());
+  const tb = document.getElementById('servicesTable');
+  if (!services.length) {
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"><i class="fa-solid fa-scissors"></i></div><p>Nenhum serviço cadastrado</p></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = services.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--text-muted);font-size:.82rem;">${s.description||'—'}</td>
+      <td>R$ ${s.price.toFixed(2)}</td>
+      <td>${s.duration} min</td>
+      <td>
+        <span class="badge" style="background:${s.active ? 'var(--green-50)' : 'var(--neutral-100)'};color:${s.active ? 'var(--green-700)' : 'var(--text-muted)'}">
+          ${s.active ? 'Ativo' : 'Inativo'}
+        </span>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="btn btn-secondary btn-sm" onclick='openServiceModal(${JSON.stringify(s)})'><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteService(${s.id})" style="color:var(--red-500)"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openServiceModal(service) {
+  document.getElementById('serviceModal').classList.add('open');
+  document.getElementById('serviceModalTitle').textContent = service ? 'Editar serviço' : 'Novo serviço';
+  document.getElementById('serviceId').value = service ? service.id : '';
+  document.getElementById('serviceName').value = service ? service.name : '';
+  document.getElementById('serviceDesc').value = service ? service.description : '';
+  document.getElementById('servicePrice').value = service ? service.price : '';
+  document.getElementById('serviceDuration').value = service ? service.duration : 60;
+  document.getElementById('serviceActive').checked = service ? service.active : true;
+  document.getElementById('serviceSubmitBtn').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> ${service ? 'Atualizar' : 'Criar serviço'}`;
+}
+function closeServiceModal() { document.getElementById('serviceModal').classList.remove('open'); }
+
+async function submitService() {
+  const id = document.getElementById('serviceId').value;
+  const data = {
+    name: document.getElementById('serviceName').value,
+    description: document.getElementById('serviceDesc').value,
+    price: document.getElementById('servicePrice').value,
+    duration: document.getElementById('serviceDuration').value,
+    active: document.getElementById('serviceActive').checked
+  };
+  if (!data.name || !data.price || !data.duration) return;
+  const url = id ? `/api/admin/services/${id}` : '/api/admin/services';
+  const r = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await r.json();
+  if (res.success) { closeServiceModal(); loadServices(); }
+  else {
+    const el = document.getElementById('serviceAlert');
+    el.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${res.error}`;
+    el.className = 'alert alert-error show';
+  }
+}
+
+async function deleteService(id) {
+  if (!confirm('Excluir este serviço?')) return;
+  await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+  loadServices();
+}
+
+// ─── CLIENTES ───────────────────────────────────────────
+async function loadClients() {
+  const clients = await fetch('/api/admin/clients').then(r => r.json());
+  document.getElementById('clientCount').textContent = `${clients.length} cliente(s) cadastrado(s)`;
+  const tb = document.getElementById('clientsTable');
+  if (!clients.length) {
+    tb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon"><i class="fa-solid fa-users"></i></div><p>Nenhum cliente cadastrado ainda</p></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = clients.map(c => `
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.email}</td>
+      <td style="color:var(--text-muted)">${c.phone || '—'}</td>
+      <td style="color:var(--text-muted)">${fmtDate(c.created_at.split('T')[0])}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── CONFIGURAÇÕES ──────────────────────────────────────
+async function loadSettings() {
+  const s = await fetch('/api/admin/settings').then(r => r.json());
+  document.getElementById('salonName').value = s.salon_name;
+  document.getElementById('openTime').value = s.open_time;
+  document.getElementById('closeTime').value = s.close_time;
+  document.getElementById('slotDuration').value = s.slot_duration;
+  [0,1,2,3,4,5,6].forEach(d => { document.getElementById('wd'+d).checked = s.working_days.includes(d); });
+}
+
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const working_days = [0,1,2,3,4,5,6].filter(d => document.getElementById('wd'+d).checked);
+  const r = await fetch('/api/admin/settings', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ salon_name: document.getElementById('salonName').value, open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value, slot_duration: document.getElementById('slotDuration').value, working_days })
+  });
+  const res = await r.json();
+  const el = document.getElementById('settingsAlert');
+  el.innerHTML = res.success
+    ? '<i class="fa-solid fa-check-circle"></i> Configurações salvas com sucesso!'
+    : `<i class="fa-solid fa-circle-exclamation"></i> ${res.error}`;
+  el.className = `alert ${res.success ? 'alert-success' : 'alert-error'} show`;
+  setTimeout(() => el.className = 'alert', 3500);
+});
+
+// ─── HELPERS ────────────────────────────────────────────
+function statusLabel(s) {
+  return { pending: 'Pendente', confirmed: 'Confirmado', cancelled: 'Cancelado', completed: 'Concluído' }[s] || s;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+</script>
+</body>
+</html>

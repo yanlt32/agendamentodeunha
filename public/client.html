@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha conta — Studio de Unhas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="/client">
+    <div class="brand-icon"><i class="fa-solid fa-scissors"></i></div>
+    <span class="brand-name">Studio de Unhas</span>
+  </a>
+  <div class="navbar-right">
+    <span class="nav-user" id="clientName"></span>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+    </button>
+  </div>
+</nav>
+
+<div class="admin-layout">
+
+  <aside class="sidebar">
+    <p class="sidebar-section-label">Menu</p>
+    <button class="sidebar-item active" onclick="showSection('novo', this)">
+      <i class="fa-solid fa-calendar-plus"></i> Agendar
+    </button>
+    <button class="sidebar-item" onclick="showSection('meus', this)">
+      <i class="fa-regular fa-calendar-check"></i> Meus agendamentos
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- Novo Agendamento -->
+    <section class="page-section active" id="sec-novo">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Novo agendamento</div>
+          <div class="page-subtitle">Escolha o serviço, data e horário</div>
+        </div>
+      </div>
+
+      <div class="alert" id="bookingAlert"></div>
+
+      <!-- Passo 1 -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-scissors"></i>
+            <span class="step-label" style="margin:0">
+              <span class="step-num active" id="step1Num">1</span> Escolha o serviço
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="services-grid" id="servicesList">
+            <div class="loading"><div class="spinner"></div> Carregando...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 2 -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-regular fa-calendar"></i>
+            <span class="step-label" style="margin:0">
+              <span class="step-num" id="step2Num">2</span> Escolha a data
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="max-width:200px;">
+            <input type="date" class="form-input" id="bookingDate" onchange="loadSlots()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 3 -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-regular fa-clock"></i>
+            <span class="step-label" style="margin:0">
+              <span class="step-num" id="step3Num">3</span> Escolha o horário
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="slotsContainer">
+            <p style="color:var(--text-muted);font-size:.85rem;">Selecione um serviço e uma data primeiro.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 4 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-circle-check"></i>
+            <span class="step-label" style="margin:0">
+              <span class="step-num" id="step4Num">4</span> Confirmar agendamento
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="confirmSummary" style="margin-bottom:1rem;">
+            <p style="color:var(--text-muted);font-size:.85rem;">Complete as etapas acima para confirmar.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Observações <span style="color:var(--text-muted);font-weight:400;text-transform:none">(opcional)</span></label>
+            <textarea class="form-textarea" id="bookingNotes" placeholder="Ex: preferência de cor, gel específico, detalhes especiais..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-lg" id="confirmBtn" onclick="confirmBooking()" disabled>
+            <i class="fa-solid fa-calendar-check"></i> Confirmar agendamento
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Meus Agendamentos -->
+    <section class="page-section" id="sec-meus">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Meus agendamentos</div>
+          <div class="page-subtitle">Acompanhe seus agendamentos</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadMyAppointments()">
+          <i class="fa-solid fa-rotate-right"></i> Atualizar
+        </button>
+      </div>
+
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="btn btn-primary btn-sm filter-btn" data-filter="all" onclick="filterApts('all', this)">Todos</button>
+        <button class="btn btn-secondary btn-sm filter-btn" data-filter="pending" onclick="filterApts('pending', this)">Pendentes</button>
+        <button class="btn btn-secondary btn-sm filter-btn" data-filter="confirmed" onclick="filterApts('confirmed', this)">Confirmados</button>
+        <button class="btn btn-secondary btn-sm filter-btn" data-filter="completed" onclick="filterApts('completed', this)">Concluídos</button>
+        <button class="btn btn-secondary btn-sm filter-btn" data-filter="cancelled" onclick="filterApts('cancelled', this)">Cancelados</button>
+      </div>
+
+      <div id="appointmentsList">
+        <div class="loading"><div class="spinner"></div> Carregando...</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+let currentUser = null;
+let selectedService = null;
+let selectedDate = null;
+let selectedTime = null;
+let allMyApts = [];
+
+fetch('/api/auth/me').then(r => r.json()).then(d => {
+  if (!d.user) { window.location.href = '/'; return; }
+  currentUser = d.user;
+  document.getElementById('clientName').textContent = d.user.name.split(' ')[0];
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bookingDate').min = today;
+  loadServices();
+}).catch(() => window.location.href = '/');
+
+function logout() {
+  fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/');
+}
+
+function showSection(name, el) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'meus') loadMyAppointments();
+}
+
+// ─── SERVIÇOS ───────────────────────────────────────────
+async function loadServices() {
+  const services = await fetch('/api/client/services').then(r => r.json());
+  const el = document.getElementById('servicesList');
+  if (!services.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-solid fa-scissors"></i></div><p>Nenhum serviço disponível no momento.</p></div>';
+    return;
+  }
+  el.innerHTML = services.map(s => `
+    <div class="service-card" onclick="selectService(${s.id}, ${JSON.stringify(s.name)}, ${s.price}, ${s.duration}, this)">
+      <div class="service-card-icon"><i class="fa-solid fa-scissors"></i></div>
+      <div class="service-name">${s.name}</div>
+      <div class="service-desc">${s.description}</div>
+      <div class="service-meta">
+        <span class="service-price">R$ ${s.price.toFixed(2)}</span>
+        <span class="service-duration"><i class="fa-regular fa-clock"></i> ${s.duration} min</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectService(id, name, price, duration, el) {
+  selectedService = { id, name, price, duration };
+  selectedTime = null;
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('step1Num').className = 'step-num done';
+  document.getElementById('step2Num').className = 'step-num active';
+  resetSlots();
+  updateSummary();
+  if (selectedDate) loadSlots();
+}
+
+function resetSlots() {
+  selectedTime = null;
+  document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Selecione uma data para ver os horários disponíveis.</p>';
+  document.getElementById('step3Num').className = 'step-num';
+  document.getElementById('step4Num').className = 'step-num';
+}
+
+// ─── SLOTS ──────────────────────────────────────────────
+async function loadSlots() {
+  selectedDate = document.getElementById('bookingDate').value;
+  selectedTime = null;
+  document.getElementById('step3Num').className = 'step-num';
+  if (!selectedService || !selectedDate) return;
+
+  document.getElementById('step2Num').className = 'step-num done';
+  document.getElementById('step3Num').className = 'step-num active';
+
+  const el = document.getElementById('slotsContainer');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Buscando horários...</div>';
+  updateSummary();
+
+  const slots = await fetch(`/api/client/available-slots?date=${selectedDate}&service_id=${selectedService.id}`).then(r => r.json());
+
+  if (!slots.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum horário disponível nesta data.<br>Tente outra data.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="slots-grid">' + slots.map(t =>
+    `<button class="slot-btn" onclick="selectTime('${t}', this)">${t}</button>`
+  ).join('') + '</div>';
+}
+
+function selectTime(time, el) {
+  selectedTime = time;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('step3Num').className = 'step-num done';
+  document.getElementById('step4Num').className = 'step-num active';
+  updateSummary();
+}
+
+// ─── RESUMO ─────────────────────────────────────────────
+function updateSummary() {
+  const el = document.getElementById('confirmSummary');
+  const btn = document.getElementById('confirmBtn');
+  if (!selectedService || !selectedDate || !selectedTime) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Complete as etapas acima para confirmar.</p>';
+    btn.disabled = true;
+    return;
+  }
+  const [y, m, d] = selectedDate.split('-');
+  el.innerHTML = `
+    <div class="summary-box">
+      <div class="summary-row"><span class="label">Serviço</span><span class="value">${selectedService.name}</span></div>
+      <div class="summary-row"><span class="label">Data</span><span class="value">${d}/${m}/${y}</span></div>
+      <div class="summary-row"><span class="label">Horário</span><span class="value">${selectedTime}</span></div>
+      <div class="summary-row"><span class="label">Duração</span><span class="value">${selectedService.duration} minutos</span></div>
+      <div class="summary-row total"><span class="label">Total</span><span class="value">R$ ${selectedService.price.toFixed(2)}</span></div>
+    </div>
+  `;
+  btn.disabled = false;
+}
+
+// ─── CONFIRMAR ──────────────────────────────────────────
+async function confirmBooking() {
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Agendando...';
+
+  const r = await fetch('/api/client/appointments', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ service_id: selectedService.id, date: selectedDate, time: selectedTime, notes: document.getElementById('bookingNotes').value })
+  });
+  const data = await r.json();
+  const alertEl = document.getElementById('bookingAlert');
+
+  if (data.success) {
+    alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Agendamento realizado! Aguarde a confirmação do salão.';
+    alertEl.className = 'alert alert-success show';
+    selectedService = null; selectedDate = null; selectedTime = null;
+    document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('bookingDate').value = '';
+    document.getElementById('bookingNotes').value = '';
+    document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Selecione um serviço e uma data primeiro.</p>';
+    document.getElementById('step1Num').className = 'step-num active';
+    document.getElementById('step2Num').className = 'step-num';
+    document.getElementById('step3Num').className = 'step-num';
+    document.getElementById('step4Num').className = 'step-num';
+    updateSummary();
+    setTimeout(() => alertEl.className = 'alert', 6000);
+  } else {
+    alertEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${data.error}`;
+    alertEl.className = 'alert alert-error show';
+    setTimeout(() => alertEl.className = 'alert', 5000);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Confirmar agendamento';
+}
+
+// ─── MEUS AGENDAMENTOS ──────────────────────────────────
+async function loadMyAppointments() {
+  const el = document.getElementById('appointmentsList');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  allMyApts = await fetch('/api/client/appointments').then(r => r.json());
+  renderApts(allMyApts);
+}
+
+function filterApts(status, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'btn btn-secondary btn-sm filter-btn'; });
+  btn.className = 'btn btn-primary btn-sm filter-btn';
+  renderApts(status === 'all' ? allMyApts : allMyApts.filter(a => a.status === status));
+}
+
+function renderApts(apts) {
+  const el = document.getElementById('appointmentsList');
+  if (!apts.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum agendamento encontrado.</p></div>';
+    return;
+  }
+  el.innerHTML = apts.map(a => {
+    const [y, m, d] = a.date.split('-');
+    return `
+      <div class="apt-card ${a.status}">
+        <div class="apt-info">
+          <div class="apt-service">${a.service_name}</div>
+          <div class="apt-details">
+            <span><i class="fa-regular fa-calendar"></i> ${d}/${m}/${y}</span>
+            <span><i class="fa-regular fa-clock"></i> ${a.time}</span>
+            <span><i class="fa-solid fa-hourglass-half"></i> ${a.duration} min</span>
+            <span><i class="fa-solid fa-tag"></i> R$ ${a.price.toFixed(2)}</span>
+          </div>
+          ${a.notes ? `<div style="margin-top:.35rem;font-size:.78rem;color:var(--text-muted);font-style:italic;">${a.notes}</div>` : ''}
+        </div>
+        <div class="apt-actions">
+          <span class="badge badge-${a.status}">${statusLabel(a.status)}</span>
+          ${a.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="cancelApt(${a.id})" style="color:var(--red-500)"><i class="fa-solid fa-xmark"></i> Cancelar</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function cancelApt(id) {
+  if (!confirm('Deseja cancelar este agendamento?')) return;
+  const r = await fetch(`/api/client/appointments/${id}/cancel`, { method: 'PATCH' });
+  const data = await r.json();
+  if (data.success) loadMyAppointments();
+  else alert(data.error);
+}
+
+function statusLabel(s) {
+  return { pending: 'Pendente', confirmed: 'Confirmado', cancelled: 'Cancelado', completed: 'Concluído' }[s] || s;
+}
+</script>
+</body>
+</html>
