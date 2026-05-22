@@ -6,9 +6,43 @@
   <title>Minha conta — Studio de Unhas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* PIX Modal */
+    .pix-amount {
+      text-align: center;
+      padding: 1rem 0 .5rem;
+    }
+    .pix-amount-label { font-size: .78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: .25rem; }
+    .pix-amount-value { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--primary); }
+
+    .pix-tabs { display: flex; background: var(--blush-100); border-radius: var(--radius-sm); padding: .2rem; margin: 1rem 0; }
+    .pix-tab  { flex: 1; padding: .45rem .5rem; text-align: center; cursor: pointer; font-size: .82rem; font-weight: 600; color: var(--text-muted); border-radius: calc(var(--radius-sm) - 2px); transition: all var(--t); }
+    .pix-tab.active { background: var(--surface); color: var(--neutral-900); box-shadow: var(--shadow-xs); }
+    .pix-panel { display: none; }
+    .pix-panel.active { display: block; }
+
+    .pix-qr-wrap { text-align: center; padding: .5rem 0 1rem; }
+    .pix-qr-wrap img { border-radius: var(--radius); border: 6px solid var(--blush-100); width: 180px; height: 180px; }
+    .pix-qr-hint { font-size: .78rem; color: var(--text-muted); margin-top: .65rem; }
+
+    .pix-code-wrap { background: var(--blush-50); border: 1.5px dashed var(--rose-200); border-radius: var(--radius); padding: 1rem; margin-bottom: .75rem; }
+    .pix-code-label { font-size: .72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .pix-code { font-family: 'Courier New', monospace; font-size: .75rem; color: var(--neutral-800); word-break: break-all; line-height: 1.5; user-select: all; }
+
+    .pix-copy-btn { width: 100%; justify-content: center; margin-bottom: .75rem; }
+    .pix-copy-btn.copied { background: var(--green-600); border-color: var(--green-600); }
+
+    .pix-info-row { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--text-muted); padding: .3rem 0; }
+    .pix-info-row i { color: var(--rose-400); width: 14px; text-align: center; flex-shrink: 0; }
+
+    .pix-confirm-btn { margin-top: 1rem; }
+    .pix-divider { display: flex; align-items: center; gap: .5rem; margin: .85rem 0; }
+    .pix-divider::before, .pix-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .pix-divider span { font-size: .72rem; color: var(--text-muted); white-space: nowrap; }
+  </style>
 </head>
 <body>
 
@@ -26,7 +60,6 @@
 </nav>
 
 <div class="admin-layout">
-
   <aside class="sidebar">
     <p class="sidebar-section-label">Menu</p>
     <button class="sidebar-item active" onclick="showSection('novo', this)">
@@ -44,7 +77,7 @@
       <div class="page-header">
         <div>
           <div class="page-title">Novo agendamento</div>
-          <div class="page-subtitle">Escolha o serviço, data e horário</div>
+          <div class="page-subtitle">Escolha o serviço, data e horário desejados</div>
         </div>
       </div>
 
@@ -55,9 +88,8 @@
         <div class="card-header">
           <div class="card-title">
             <i class="fa-solid fa-scissors"></i>
-            <span class="step-label" style="margin:0">
-              <span class="step-num active" id="step1Num">1</span> Escolha o serviço
-            </span>
+            <span class="step-num active" id="step1Num">1</span>
+            Escolha o serviço
           </div>
         </div>
         <div class="card-body">
@@ -72,14 +104,13 @@
         <div class="card-header">
           <div class="card-title">
             <i class="fa-regular fa-calendar"></i>
-            <span class="step-label" style="margin:0">
-              <span class="step-num" id="step2Num">2</span> Escolha a data
-            </span>
+            <span class="step-num" id="step2Num">2</span>
+            Escolha a data
           </div>
         </div>
         <div class="card-body">
           <div style="max-width:200px;">
-            <input type="date" class="form-input" id="bookingDate" onchange="loadSlots()">
+            <input type="date" class="form-input" id="bookingDate" onchange="onDateChange()">
           </div>
         </div>
       </div>
@@ -89,14 +120,21 @@
         <div class="card-header">
           <div class="card-title">
             <i class="fa-regular fa-clock"></i>
-            <span class="step-label" style="margin:0">
-              <span class="step-num" id="step3Num">3</span> Escolha o horário
+            <span class="step-num" id="step3Num">3</span>
+            Escolha o horário
+          </div>
+          <div id="slotsLegend" style="display:none;font-size:.75rem;color:var(--text-muted);display:flex;gap:.75rem;align-items:center;">
+            <span style="display:flex;align-items:center;gap:.3rem;">
+              <span style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--rose-500),var(--rose-600));display:inline-block;"></span> Disponível
+            </span>
+            <span style="display:flex;align-items:center;gap:.3rem;">
+              <span style="width:11px;height:11px;border-radius:3px;background:var(--neutral-200);display:inline-block;"></span> Ocupado
             </span>
           </div>
         </div>
         <div class="card-body">
           <div id="slotsContainer">
-            <p style="color:var(--text-muted);font-size:.85rem;">Selecione um serviço e uma data primeiro.</p>
+            <p style="color:var(--text-muted);font-size:.84rem;">Selecione um serviço e uma data primeiro.</p>
           </div>
         </div>
       </div>
@@ -106,21 +144,20 @@
         <div class="card-header">
           <div class="card-title">
             <i class="fa-solid fa-circle-check"></i>
-            <span class="step-label" style="margin:0">
-              <span class="step-num" id="step4Num">4</span> Confirmar agendamento
-            </span>
+            <span class="step-num" id="step4Num">4</span>
+            Confirmar agendamento
           </div>
         </div>
         <div class="card-body">
-          <div id="confirmSummary" style="margin-bottom:1rem;">
-            <p style="color:var(--text-muted);font-size:.85rem;">Complete as etapas acima para confirmar.</p>
+          <div id="confirmSummary">
+            <p style="color:var(--text-muted);font-size:.84rem;">Complete as etapas acima para confirmar.</p>
           </div>
-          <div class="form-group">
-            <label class="form-label">Observações <span style="color:var(--text-muted);font-weight:400;text-transform:none">(opcional)</span></label>
-            <textarea class="form-textarea" id="bookingNotes" placeholder="Ex: preferência de cor, gel específico, detalhes especiais..."></textarea>
+          <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label">Observações <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(opcional)</span></label>
+            <textarea class="form-textarea" id="bookingNotes" placeholder="Ex: preferência de cor, esmalte específico, detalhes especiais..."></textarea>
           </div>
-          <button class="btn btn-primary btn-lg" id="confirmBtn" onclick="confirmBooking()" disabled>
-            <i class="fa-solid fa-calendar-check"></i> Confirmar agendamento
+          <button class="btn btn-primary btn-lg" id="confirmBtn" onclick="openPixModal()" disabled>
+            <i class="fa-solid fa-pix" style="font-size:.9rem"></i> Pagar taxa e confirmar
           </button>
         </div>
       </div>
@@ -131,7 +168,7 @@
       <div class="page-header">
         <div>
           <div class="page-title">Meus agendamentos</div>
-          <div class="page-subtitle">Acompanhe seus agendamentos</div>
+          <div class="page-subtitle">Acompanhe o status dos seus agendamentos</div>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="loadMyAppointments()">
           <i class="fa-solid fa-rotate-right"></i> Atualizar
@@ -139,11 +176,11 @@
       </div>
 
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;">
-        <button class="btn btn-primary btn-sm filter-btn" data-filter="all" onclick="filterApts('all', this)">Todos</button>
-        <button class="btn btn-secondary btn-sm filter-btn" data-filter="pending" onclick="filterApts('pending', this)">Pendentes</button>
-        <button class="btn btn-secondary btn-sm filter-btn" data-filter="confirmed" onclick="filterApts('confirmed', this)">Confirmados</button>
-        <button class="btn btn-secondary btn-sm filter-btn" data-filter="completed" onclick="filterApts('completed', this)">Concluídos</button>
-        <button class="btn btn-secondary btn-sm filter-btn" data-filter="cancelled" onclick="filterApts('cancelled', this)">Cancelados</button>
+        <button class="btn btn-primary btn-sm filter-btn" onclick="filterApts('all', this)">Todos</button>
+        <button class="btn btn-secondary btn-sm filter-btn" onclick="filterApts('pending', this)">Pendentes</button>
+        <button class="btn btn-secondary btn-sm filter-btn" onclick="filterApts('confirmed', this)">Confirmados</button>
+        <button class="btn btn-secondary btn-sm filter-btn" onclick="filterApts('completed', this)">Concluídos</button>
+        <button class="btn btn-secondary btn-sm filter-btn" onclick="filterApts('cancelled', this)">Cancelados</button>
       </div>
 
       <div id="appointmentsList">
@@ -154,19 +191,37 @@
   </main>
 </div>
 
-<script>
-let currentUser = null;
-let selectedService = null;
-let selectedDate = null;
-let selectedTime = null;
-let allMyApts = [];
+<!-- Modal PIX -->
+<div class="modal-overlay" id="pixModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fa-solid fa-qrcode" style="color:var(--primary);margin-right:.4rem;"></i> Pagar com PIX</h3>
+      <button class="modal-close" onclick="closePixModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="pixModalBody">
+      <!-- preenchido via JS -->
+    </div>
+  </div>
+</div>
 
+<script>
+const BOOKING_FEE = 20;
+const PIX_KEY     = 'studio.unhas@pix.com.br'; // chave PIX do salão
+
+let currentUser     = null;
+let allServices     = [];
+let selectedService = null;
+let selectedDate    = null;
+let selectedTime    = null;
+let allMyApts       = [];
+let pendingNotes    = '';
+
+// ─── AUTH ────────────────────────────────────────────────
 fetch('/api/auth/me').then(r => r.json()).then(d => {
   if (!d.user) { window.location.href = '/'; return; }
   currentUser = d.user;
   document.getElementById('clientName').textContent = d.user.name.split(' ')[0];
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('bookingDate').min = today;
+  document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
   loadServices();
 }).catch(() => window.location.href = '/');
 
@@ -182,17 +237,17 @@ function showSection(name, el) {
   if (name === 'meus') loadMyAppointments();
 }
 
-// ─── SERVIÇOS ───────────────────────────────────────────
+// ─── SERVIÇOS ────────────────────────────────────────────
 async function loadServices() {
-  const services = await fetch('/api/client/services').then(r => r.json());
+  allServices = await fetch('/api/client/services').then(r => r.json());
   const el = document.getElementById('servicesList');
-  if (!services.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-solid fa-scissors"></i></div><p>Nenhum serviço disponível no momento.</p></div>';
+  if (!allServices.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-solid fa-scissors"></i></div><p>Nenhum serviço disponível.</p></div>';
     return;
   }
-  el.innerHTML = services.map(s => `
-    <div class="service-card" onclick="selectService(${s.id}, ${JSON.stringify(s.name)}, ${s.price}, ${s.duration}, this)">
-      <div class="service-card-icon"><i class="fa-solid fa-scissors"></i></div>
+  el.innerHTML = allServices.map(s => `
+    <div class="service-card" id="svc-${s.id}" onclick="selectService(${s.id})">
+      <div class="service-card-icon"><i class="fa-solid fa-hand-sparkles"></i></div>
       <div class="service-name">${s.name}</div>
       <div class="service-desc">${s.description}</div>
       <div class="service-meta">
@@ -203,11 +258,13 @@ async function loadServices() {
   `).join('');
 }
 
-function selectService(id, name, price, duration, el) {
-  selectedService = { id, name, price, duration };
+function selectService(id) {
+  const s = allServices.find(sv => sv.id === id);
+  if (!s) return;
+  selectedService = s;
   selectedTime = null;
   document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+  document.getElementById('svc-' + id).classList.add('selected');
   document.getElementById('step1Num').className = 'step-num done';
   document.getElementById('step2Num').className = 'step-num active';
   resetSlots();
@@ -215,107 +272,252 @@ function selectService(id, name, price, duration, el) {
   if (selectedDate) loadSlots();
 }
 
+// ─── DATA ────────────────────────────────────────────────
+function onDateChange() {
+  selectedDate = document.getElementById('bookingDate').value;
+  selectedTime = null;
+  if (selectedDate && selectedService) {
+    document.getElementById('step2Num').className = 'step-num done';
+    document.getElementById('step3Num').className = 'step-num active';
+    loadSlots();
+  }
+  updateSummary();
+}
+
 function resetSlots() {
   selectedTime = null;
-  document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Selecione uma data para ver os horários disponíveis.</p>';
+  document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.84rem;">Selecione uma data para ver os horários disponíveis.</p>';
+  document.getElementById('slotsLegend').style.display = 'none';
   document.getElementById('step3Num').className = 'step-num';
   document.getElementById('step4Num').className = 'step-num';
 }
 
-// ─── SLOTS ──────────────────────────────────────────────
+// ─── SLOTS ───────────────────────────────────────────────
 async function loadSlots() {
-  selectedDate = document.getElementById('bookingDate').value;
-  selectedTime = null;
-  document.getElementById('step3Num').className = 'step-num';
   if (!selectedService || !selectedDate) return;
-
-  document.getElementById('step2Num').className = 'step-num done';
-  document.getElementById('step3Num').className = 'step-num active';
-
   const el = document.getElementById('slotsContainer');
   el.innerHTML = '<div class="loading"><div class="spinner"></div> Buscando horários...</div>';
-  updateSummary();
 
   const slots = await fetch(`/api/client/available-slots?date=${selectedDate}&service_id=${selectedService.id}`).then(r => r.json());
 
   if (!slots.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum horário disponível nesta data.<br>Tente outra data.</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum horário disponível nesta data. Tente outro dia.</p></div>';
+    document.getElementById('slotsLegend').style.display = 'none';
+    updateSummary();
     return;
   }
-  el.innerHTML = '<div class="slots-grid">' + slots.map(t =>
-    `<button class="slot-btn" onclick="selectTime('${t}', this)">${t}</button>`
-  ).join('') + '</div>';
+
+  const available = slots.filter(s => s.available).length;
+  const occupied  = slots.filter(s => !s.available).length;
+  document.getElementById('slotsLegend').style.display = 'flex';
+
+  let html = `<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem;">
+    <i class="fa-solid fa-circle-info" style="color:var(--rose-400);margin-right:.25rem;"></i>
+    ${available} disponível(is)${occupied ? ` &middot; ${occupied} ocupado(s)` : ''}
+  </p><div class="slots-grid">`;
+
+  html += slots.map(s => s.available
+    ? `<button class="slot-btn" id="slot-${s.time.replace(':','-')}" onclick="selectTime('${s.time}')">${s.time}</button>`
+    : `<button class="slot-btn occupied" disabled title="Ocupado: ${s.service_name||'agendado'}">${s.time}</button>`
+  ).join('');
+
+  el.innerHTML = html + '</div>';
+  updateSummary();
 }
 
-function selectTime(time, el) {
+function selectTime(time) {
   selectedTime = time;
-  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
+  document.querySelectorAll('.slot-btn:not(.occupied)').forEach(b => b.classList.remove('selected'));
+  const btn = document.getElementById('slot-' + time.replace(':','-'));
+  if (btn) btn.classList.add('selected');
   document.getElementById('step3Num').className = 'step-num done';
   document.getElementById('step4Num').className = 'step-num active';
   updateSummary();
 }
 
-// ─── RESUMO ─────────────────────────────────────────────
+// ─── RESUMO ──────────────────────────────────────────────
 function updateSummary() {
-  const el = document.getElementById('confirmSummary');
+  const el  = document.getElementById('confirmSummary');
   const btn = document.getElementById('confirmBtn');
   if (!selectedService || !selectedDate || !selectedTime) {
-    el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Complete as etapas acima para confirmar.</p>';
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.84rem;">Complete as etapas acima para confirmar.</p>';
     btn.disabled = true;
     return;
   }
   const [y, m, d] = selectedDate.split('-');
   el.innerHTML = `
+    <div class="fee-box">
+      <i class="fa-solid fa-lock"></i>
+      <div class="fee-box-text">
+        Para garantir seu horário, é cobrada uma <strong>taxa de agendamento de R$ ${BOOKING_FEE.toFixed(2)}</strong> via PIX. Esse valor é descontado no dia do atendimento.
+      </div>
+    </div>
     <div class="summary-box">
-      <div class="summary-row"><span class="label">Serviço</span><span class="value">${selectedService.name}</span></div>
-      <div class="summary-row"><span class="label">Data</span><span class="value">${d}/${m}/${y}</span></div>
-      <div class="summary-row"><span class="label">Horário</span><span class="value">${selectedTime}</span></div>
-      <div class="summary-row"><span class="label">Duração</span><span class="value">${selectedService.duration} minutos</span></div>
-      <div class="summary-row total"><span class="label">Total</span><span class="value">R$ ${selectedService.price.toFixed(2)}</span></div>
+      <div class="summary-row"><span class="s-label">Serviço</span><span class="s-value">${selectedService.name}</span></div>
+      <div class="summary-row"><span class="s-label">Data</span><span class="s-value">${d}/${m}/${y}</span></div>
+      <div class="summary-row"><span class="s-label">Horário</span><span class="s-value">${selectedTime}</span></div>
+      <div class="summary-row"><span class="s-label">Duração</span><span class="s-value">${selectedService.duration} min</span></div>
+      <div class="summary-row"><span class="s-label">Valor do serviço</span><span class="s-value">R$ ${selectedService.price.toFixed(2)}</span></div>
+      <div class="summary-row s-fee"><span class="s-label">Taxa de agendamento</span><span class="s-value">R$ ${BOOKING_FEE.toFixed(2)}</span></div>
+      <div class="summary-row s-total"><span class="s-label">Pagar agora (PIX)</span><span class="s-value">R$ ${BOOKING_FEE.toFixed(2)}</span></div>
     </div>
   `;
   btn.disabled = false;
 }
 
-// ─── CONFIRMAR ──────────────────────────────────────────
-async function confirmBooking() {
-  const btn = document.getElementById('confirmBtn');
+// ─── MODAL PIX ───────────────────────────────────────────
+function generatePixCode(txid) {
+  // EMV simplificado para demonstração
+  const name   = 'Studio de Unhas';
+  const city   = 'Sao Paulo';
+  const amount = BOOKING_FEE.toFixed(2);
+  const key    = PIX_KEY;
+  const raw = `00020126${String(14 + key.length + 6).padStart(2,'0')}0014BR.GOV.BCB.PIX01${String(key.length).padStart(2,'0')}${key}52040000530398654${String(String(amount).length + 2).padStart(2,'0')}${amount}5802BR59${String(name.length).padStart(2,'0')}${name}60${String(city.length).padStart(2,'0')}${city}62${String(txid.length + 4).padStart(2,'0')}0503${txid}6304`;
+  // CRC16 simplificado (demo)
+  const crc = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');
+  return raw + crc;
+}
+
+function openPixModal() {
+  pendingNotes = document.getElementById('bookingNotes').value;
+  const [y, m, d] = selectedDate.split('-');
+  const txid = 'STU' + Date.now().toString().slice(-8);
+  const pixCode = generatePixCode(txid);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}&color=C9294D&bgcolor=FFF8F9`;
+
+  document.getElementById('pixModalBody').innerHTML = `
+    <div class="pix-amount">
+      <div class="pix-amount-label">Taxa de agendamento</div>
+      <div class="pix-amount-value">R$ ${BOOKING_FEE.toFixed(2)}</div>
+    </div>
+
+    <div style="background:var(--blush-50);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;">
+      <div class="pix-info-row"><i class="fa-solid fa-scissors"></i> <span><strong>${selectedService.name}</strong></span></div>
+      <div class="pix-info-row"><i class="fa-regular fa-calendar"></i> <span>${d}/${m}/${y} às ${selectedTime}</span></div>
+      <div class="pix-info-row"><i class="fa-solid fa-tag"></i> <span>Chave PIX: <strong>${PIX_KEY}</strong></span></div>
+    </div>
+
+    <div class="pix-tabs">
+      <div class="pix-tab active" id="ptabQr" onclick="switchPixTab('qr')"><i class="fa-solid fa-qrcode"></i> QR Code</div>
+      <div class="pix-tab" id="ptabCopy" onclick="switchPixTab('copy')"><i class="fa-solid fa-copy"></i> Copia e Cola</div>
+    </div>
+
+    <!-- QR Code -->
+    <div class="pix-panel active" id="ppanelQr">
+      <div class="pix-qr-wrap">
+        <img src="${qrUrl}" alt="QR Code PIX" onerror="this.style.display='none';document.getElementById('qrFallback').style.display='block'">
+        <div id="qrFallback" style="display:none;width:180px;height:180px;background:var(--blush-100);border-radius:var(--radius);margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--rose-300);">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+        <div class="pix-qr-hint">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          Abra o app do seu banco e escaneie o QR Code
+        </div>
+      </div>
+    </div>
+
+    <!-- Copia e Cola -->
+    <div class="pix-panel" id="ppanelCopy">
+      <div class="pix-code-wrap">
+        <div class="pix-code-label">Código PIX (copia e cola)</div>
+        <div class="pix-code" id="pixCodeText">${pixCode}</div>
+      </div>
+      <button class="btn btn-secondary btn-full pix-copy-btn" id="copyBtn" onclick="copyPixCode('${pixCode}')">
+        <i class="fa-solid fa-copy"></i> Copiar código PIX
+      </button>
+    </div>
+
+    <div class="pix-divider"><span>Após realizar o pagamento</span></div>
+
+    <div style="display:flex;flex-direction:column;gap:.6rem;">
+      <div class="pix-info-row"><i class="fa-solid fa-circle-check"></i> O pagamento é confirmado automaticamente em até 1 minuto.</div>
+      <div class="pix-info-row"><i class="fa-solid fa-circle-info"></i> Seu horário será reservado após a confirmação.</div>
+    </div>
+
+    <button class="btn btn-primary btn-full btn-lg pix-confirm-btn" id="pixConfirmBtn" onclick="confirmBookingAfterPix()">
+      <i class="fa-solid fa-circle-check"></i> Já realizei o pagamento
+    </button>
+    <button class="btn btn-ghost btn-full btn-sm" onclick="closePixModal()" style="margin-top:.4rem;">
+      Cancelar
+    </button>
+  `;
+
+  document.getElementById('pixModal').classList.add('open');
+}
+
+function closePixModal() {
+  document.getElementById('pixModal').classList.remove('open');
+}
+
+function switchPixTab(tab) {
+  document.getElementById('ptabQr').classList.toggle('active', tab === 'qr');
+  document.getElementById('ptabCopy').classList.toggle('active', tab === 'copy');
+  document.getElementById('ppanelQr').classList.toggle('active', tab === 'qr');
+  document.getElementById('ppanelCopy').classList.toggle('active', tab === 'copy');
+}
+
+async function copyPixCode(code) {
+  try {
+    await navigator.clipboard.writeText(code);
+    const btn = document.getElementById('copyBtn');
+    btn.className = 'btn btn-success btn-full pix-copy-btn copied';
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Código copiado!';
+    setTimeout(() => {
+      btn.className = 'btn btn-secondary btn-full pix-copy-btn';
+      btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar código PIX';
+    }, 3000);
+  } catch {
+    document.getElementById('pixCodeText').style.background = 'var(--rose-50)';
+    alert('Selecione e copie o código manualmente.');
+  }
+}
+
+async function confirmBookingAfterPix() {
+  const btn = document.getElementById('pixConfirmBtn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Agendando...';
+  btn.innerHTML = '<div class="spinner"></div> Criando agendamento...';
 
   const r = await fetch('/api/client/appointments', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ service_id: selectedService.id, date: selectedDate, time: selectedTime, notes: document.getElementById('bookingNotes').value })
+    body: JSON.stringify({
+      service_id: selectedService.id,
+      date: selectedDate,
+      time: selectedTime,
+      notes: pendingNotes
+    })
   });
   const data = await r.json();
-  const alertEl = document.getElementById('bookingAlert');
 
   if (data.success) {
-    alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Agendamento realizado! Aguarde a confirmação do salão.';
+    closePixModal();
+    const alertEl = document.getElementById('bookingAlert');
+    alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Agendamento realizado com sucesso! Aguarde a confirmação do salão.';
     alertEl.className = 'alert alert-success show';
-    selectedService = null; selectedDate = null; selectedTime = null;
+    // Reset
+    selectedService = null; selectedDate = null; selectedTime = null; pendingNotes = '';
     document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
     document.getElementById('bookingDate').value = '';
     document.getElementById('bookingNotes').value = '';
-    document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Selecione um serviço e uma data primeiro.</p>';
-    document.getElementById('step1Num').className = 'step-num active';
-    document.getElementById('step2Num').className = 'step-num';
-    document.getElementById('step3Num').className = 'step-num';
-    document.getElementById('step4Num').className = 'step-num';
+    document.getElementById('slotsContainer').innerHTML = '<p style="color:var(--text-muted);font-size:.84rem;">Selecione um serviço e uma data primeiro.</p>';
+    document.getElementById('slotsLegend').style.display = 'none';
+    ['step1Num','step2Num','step3Num','step4Num'].forEach((id, i) => {
+      document.getElementById(id).className = i === 0 ? 'step-num active' : 'step-num';
+    });
     updateSummary();
-    setTimeout(() => alertEl.className = 'alert', 6000);
+    setTimeout(() => alertEl.className = 'alert', 7000);
   } else {
-    alertEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${data.error}`;
-    alertEl.className = 'alert alert-error show';
-    setTimeout(() => alertEl.className = 'alert', 5000);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Já realizei o pagamento';
+    alert('Erro: ' + data.error);
   }
-
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Confirmar agendamento';
 }
 
-// ─── MEUS AGENDAMENTOS ──────────────────────────────────
+// Fechar ao clicar fora
+document.getElementById('pixModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('pixModal')) closePixModal();
+});
+
+// ─── MEUS AGENDAMENTOS ───────────────────────────────────
 async function loadMyAppointments() {
   const el = document.getElementById('appointmentsList');
   el.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
@@ -324,7 +526,7 @@ async function loadMyAppointments() {
 }
 
 function filterApts(status, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'btn btn-secondary btn-sm filter-btn'; });
+  document.querySelectorAll('.filter-btn').forEach(b => b.className = 'btn btn-secondary btn-sm filter-btn');
   btn.className = 'btn btn-primary btn-sm filter-btn';
   renderApts(status === 'all' ? allMyApts : allMyApts.filter(a => a.status === status));
 }
@@ -347,11 +549,11 @@ function renderApts(apts) {
             <span><i class="fa-solid fa-hourglass-half"></i> ${a.duration} min</span>
             <span><i class="fa-solid fa-tag"></i> R$ ${a.price.toFixed(2)}</span>
           </div>
-          ${a.notes ? `<div style="margin-top:.35rem;font-size:.78rem;color:var(--text-muted);font-style:italic;">${a.notes}</div>` : ''}
+          ${a.notes ? `<div style="margin-top:.35rem;font-size:.77rem;color:var(--text-muted);font-style:italic;">${a.notes}</div>` : ''}
         </div>
         <div class="apt-actions">
-          <span class="badge badge-${a.status}">${statusLabel(a.status)}</span>
-          ${a.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="cancelApt(${a.id})" style="color:var(--red-500)"><i class="fa-solid fa-xmark"></i> Cancelar</button>` : ''}
+          <span class="badge badge-${a.status}"><i class="fa-solid fa-circle" style="font-size:.5rem"></i> ${statusLabel(a.status)}</span>
+          ${a.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="cancelApt(${a.id})" style="color:var(--red-600)"><i class="fa-solid fa-xmark"></i> Cancelar</button>` : ''}
         </div>
       </div>
     `;
@@ -367,7 +569,7 @@ async function cancelApt(id) {
 }
 
 function statusLabel(s) {
-  return { pending: 'Pendente', confirmed: 'Confirmado', cancelled: 'Cancelado', completed: 'Concluído' }[s] || s;
+  return { pending:'Pendente', confirmed:'Confirmado', cancelled:'Cancelado', completed:'Concluído' }[s] || s;
 }
 </script>
 </body>

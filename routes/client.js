@@ -36,14 +36,18 @@ router.get('/available-slots', (req, res) => {
     const min = String(m % 60).padStart(2, '0');
     const time = `${h}:${min}`;
 
-    const conflict = booked.some(a => {
+    const conflictApt = booked.find(a => {
       const [ah, am] = a.time.split(':').map(Number);
       const aptStart = ah * 60 + am;
       const aptEnd = aptStart + a.duration;
       return m < aptEnd && m + service.duration > aptStart;
     });
 
-    if (!conflict) slots.push(time);
+    slots.push({
+      time,
+      available: !conflictApt,
+      service_name: conflictApt ? conflictApt.service_name : null
+    });
   }
   res.json(slots);
 });

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -6,8 +6,8 @@
   <title>Painel Admin — Studio de Unhas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -27,7 +27,6 @@
 </nav>
 
 <div class="admin-layout">
-
   <aside class="sidebar">
     <p class="sidebar-section-label">Menu</p>
     <button class="sidebar-item active" onclick="showSection('dashboard', this)">
@@ -37,7 +36,7 @@
       <i class="fa-regular fa-calendar-check"></i> Agendamentos
     </button>
     <button class="sidebar-item" onclick="showSection('services', this)">
-      <i class="fa-solid fa-sparkles"></i> Serviços
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Serviços
     </button>
     <button class="sidebar-item" onclick="showSection('clients', this)">
       <i class="fa-solid fa-users"></i> Clientes
@@ -55,50 +54,23 @@
       <div class="page-header">
         <div>
           <div class="page-title">Dashboard</div>
-          <div class="page-subtitle">Visão geral do seu negócio</div>
+          <div class="page-subtitle" id="todayDate"></div>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">
           <i class="fa-solid fa-rotate-right"></i> Atualizar
         </button>
       </div>
-
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon rose"><i class="fa-solid fa-users"></i></div>
-          <div class="stat-value" id="st-clients">—</div>
-          <div class="stat-label">Clientes</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue"><i class="fa-regular fa-calendar"></i></div>
-          <div class="stat-value" id="st-total">—</div>
-          <div class="stat-label">Total agendamentos</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon amber"><i class="fa-solid fa-sun"></i></div>
-          <div class="stat-value" id="st-today">—</div>
-          <div class="stat-label">Hoje</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon rose"><i class="fa-regular fa-clock"></i></div>
-          <div class="stat-value" id="st-pending">—</div>
-          <div class="stat-label">Pendentes</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
-          <div class="stat-value" id="st-confirmed">—</div>
-          <div class="stat-label">Confirmados</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon plum"><i class="fa-solid fa-brazilian-real-sign"></i></div>
-          <div class="stat-value" id="st-revenue">—</div>
-          <div class="stat-label">Receita confirmada</div>
-        </div>
+        <div class="stat-card"><div class="stat-icon rose"><i class="fa-solid fa-users"></i></div><div class="stat-value" id="st-clients">—</div><div class="stat-label">Clientes</div></div>
+        <div class="stat-card"><div class="stat-icon blue"><i class="fa-regular fa-calendar"></i></div><div class="stat-value" id="st-total">—</div><div class="stat-label">Total agendamentos</div></div>
+        <div class="stat-card"><div class="stat-icon amber"><i class="fa-solid fa-sun"></i></div><div class="stat-value" id="st-today">—</div><div class="stat-label">Hoje</div></div>
+        <div class="stat-card"><div class="stat-icon rose"><i class="fa-regular fa-clock"></i></div><div class="stat-value" id="st-pending">—</div><div class="stat-label">Pendentes</div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-value" id="st-confirmed">—</div><div class="stat-label">Confirmados</div></div>
+        <div class="stat-card"><div class="stat-icon mauve"><i class="fa-solid fa-money-bill-wave"></i></div><div class="stat-value" id="st-revenue">—</div><div class="stat-label">Receita confirmada</div></div>
       </div>
-
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="fa-regular fa-calendar-day"></i> Agendamentos de hoje</div>
-          <span id="todayDate" style="font-size:.8rem;color:var(--text-muted)"></span>
         </div>
         <div class="table-wrap">
           <table>
@@ -112,10 +84,7 @@
     <!-- Agendamentos -->
     <section class="page-section" id="sec-appointments">
       <div class="page-header">
-        <div>
-          <div class="page-title">Agendamentos</div>
-          <div class="page-subtitle">Gerencie todos os agendamentos</div>
-        </div>
+        <div><div class="page-title">Agendamentos</div><div class="page-subtitle">Gerencie todos os agendamentos</div></div>
       </div>
       <div class="card" style="margin-bottom:1rem;">
         <div class="filter-bar">
@@ -133,9 +102,7 @@
               <option value="cancelled">Cancelado</option>
             </select>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="clearFilters()">
-            <i class="fa-solid fa-xmark"></i> Limpar
-          </button>
+          <button class="btn btn-ghost btn-sm" onclick="clearFilters()"><i class="fa-solid fa-xmark"></i> Limpar</button>
         </div>
       </div>
       <div class="card">
@@ -151,13 +118,8 @@
     <!-- Serviços -->
     <section class="page-section" id="sec-services">
       <div class="page-header">
-        <div>
-          <div class="page-title">Serviços</div>
-          <div class="page-subtitle">Gerencie o cardápio de serviços</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openServiceModal()">
-          <i class="fa-solid fa-plus"></i> Novo serviço
-        </button>
+        <div><div class="page-title">Serviços</div><div class="page-subtitle">Gerencie o cardápio de serviços</div></div>
+        <button class="btn btn-primary btn-sm" onclick="openServiceModal()"><i class="fa-solid fa-plus"></i> Novo serviço</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -172,10 +134,7 @@
     <!-- Clientes -->
     <section class="page-section" id="sec-clients">
       <div class="page-header">
-        <div>
-          <div class="page-title">Clientes</div>
-          <div class="page-subtitle" id="clientCount">Carregando...</div>
-        </div>
+        <div><div class="page-title">Clientes</div><div class="page-subtitle" id="clientCount">Carregando...</div></div>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -190,10 +149,7 @@
     <!-- Configurações -->
     <section class="page-section" id="sec-settings">
       <div class="page-header">
-        <div>
-          <div class="page-title">Configurações</div>
-          <div class="page-subtitle">Horários e funcionamento do salão</div>
-        </div>
+        <div><div class="page-title">Configurações</div><div class="page-subtitle">Horários e funcionamento do salão</div></div>
       </div>
       <div class="card" style="max-width:520px;">
         <div class="card-body">
@@ -303,22 +259,17 @@
 
 <script>
 let currentUser = null;
-let currentApt = null;
 
-// Auth
 fetch('/api/auth/me').then(r => r.json()).then(d => {
   if (!d.user || d.user.role !== 'admin') { window.location.href = '/'; return; }
   currentUser = d.user;
   document.getElementById('adminName').textContent = d.user.name;
-  const today = new Date();
-  document.getElementById('todayDate').textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
   loadDashboard();
   loadSettings();
 }).catch(() => window.location.href = '/');
 
-function logout() {
-  fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/');
-}
+function logout() { fetch('/api/auth/logout', { method:'POST' }).then(() => window.location.href = '/'); }
 
 function showSection(name, el) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -330,33 +281,30 @@ function showSection(name, el) {
   if (name === 'clients') loadClients();
 }
 
-// ─── DASHBOARD ─────────────────────────────────────────
+// Dashboard
 async function loadDashboard() {
   const today = new Date().toISOString().split('T')[0];
   const [stats, apts] = await Promise.all([
     fetch('/api/admin/stats').then(r => r.json()),
     fetch('/api/admin/appointments?date=' + today).then(r => r.json())
   ]);
-
   document.getElementById('st-clients').textContent = stats.total_clients;
-  document.getElementById('st-total').textContent = stats.total_appointments;
-  document.getElementById('st-today').textContent = stats.today_appointments;
+  document.getElementById('st-total').textContent   = stats.total_appointments;
+  document.getElementById('st-today').textContent   = stats.today_appointments;
   document.getElementById('st-pending').textContent = stats.pending;
   document.getElementById('st-confirmed').textContent = stats.confirmed;
   document.getElementById('st-revenue').textContent = 'R$ ' + stats.revenue.toFixed(2);
-
-  renderAppointmentTable('todayTable', apts, 6, false);
+  renderAptTable('todayTable', apts, false);
 }
 
-// ─── AGENDAMENTOS ───────────────────────────────────────
+// Agendamentos
 async function loadAppointments() {
-  const date = document.getElementById('filterDate').value;
+  const date   = document.getElementById('filterDate').value;
   const status = document.getElementById('filterStatus').value;
   let url = '/api/admin/appointments?';
-  if (date) url += 'date=' + date + '&';
+  if (date)   url += 'date=' + date + '&';
   if (status) url += 'status=' + status;
-  const apts = await fetch(url).then(r => r.json());
-  renderAppointmentTable('appointmentsTable', apts, 7, true);
+  renderAptTable('appointmentsTable', await fetch(url).then(r => r.json()), true);
 }
 
 function clearFilters() {
@@ -365,8 +313,9 @@ function clearFilters() {
   loadAppointments();
 }
 
-function renderAppointmentTable(tbodyId, apts, cols, showDate) {
+function renderAptTable(tbodyId, apts, showDate) {
   const tb = document.getElementById(tbodyId);
+  const cols = showDate ? 7 : 6;
   if (!apts.length) {
     tb.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><div class="empty-state-icon"><i class="fa-regular fa-calendar-xmark"></i></div><p>Nenhum agendamento encontrado</p></div></td></tr>`;
     return;
@@ -375,20 +324,16 @@ function renderAppointmentTable(tbodyId, apts, cols, showDate) {
     <tr>
       ${showDate ? `<td>${fmtDate(a.date)}</td>` : ''}
       <td><strong>${a.time}</strong></td>
-      <td>
-        <div>${a.user_name}</div>
-        <div class="td-sub">${a.user_email}</div>
-      </td>
+      <td><div>${a.user_name}</div><div class="td-sub">${a.user_email}</div></td>
       <td>${a.service_name}</td>
       <td>R$ ${a.price.toFixed(2)}</td>
-      <td><span class="badge badge-${a.status}">${statusLabel(a.status)}</span></td>
+      <td><span class="badge badge-${a.status}"><i class="fa-solid fa-circle" style="font-size:.45rem"></i> ${statusLabel(a.status)}</span></td>
       <td><button class="btn btn-secondary btn-sm" onclick='openAptModal(${JSON.stringify(a)})'>Gerenciar</button></td>
     </tr>
   `).join('');
 }
 
 function openAptModal(apt) {
-  currentApt = apt;
   document.getElementById('aptModal').classList.add('open');
   document.getElementById('aptModalBody').innerHTML = `
     <div style="margin-bottom:1rem;">
@@ -399,6 +344,7 @@ function openAptModal(apt) {
       <div class="detail-row"><span class="detail-key">Duração</span><span class="detail-val">${apt.duration} min</span></div>
       <div class="detail-row"><span class="detail-key">Valor</span><span class="detail-val">R$ ${apt.price.toFixed(2)}</span></div>
       <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="badge badge-${apt.status}">${statusLabel(apt.status)}</span></span></div>
+      ${apt.notes ? `<div class="detail-row"><span class="detail-key">Obs.</span><span class="detail-val" style="font-style:italic;color:var(--text-muted)">${apt.notes}</span></div>` : ''}
     </div>
     <div class="form-group">
       <label class="form-label">Alterar status</label>
@@ -411,7 +357,7 @@ function openAptModal(apt) {
     </div>
     <div class="form-group">
       <label class="form-label">Observações internas</label>
-      <textarea class="form-textarea" id="aptNotes" placeholder="Anotações internas sobre este agendamento...">${apt.notes||''}</textarea>
+      <textarea class="form-textarea" id="aptNotes" placeholder="Anotações internas...">${apt.notes||''}</textarea>
     </div>
   `;
   document.getElementById('aptModalFooter').innerHTML = `
@@ -423,11 +369,11 @@ function openAptModal(apt) {
   `;
 }
 
-function closeAptModal() { document.getElementById('aptModal').classList.remove('open'); currentApt = null; }
+function closeAptModal() { document.getElementById('aptModal').classList.remove('open'); }
 
 async function updateApt(id) {
   await fetch(`/api/admin/appointments/${id}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    method:'PATCH', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ status: document.getElementById('aptStatusSelect').value, notes: document.getElementById('aptNotes').value })
   });
   closeAptModal(); loadAppointments(); loadDashboard();
@@ -435,11 +381,11 @@ async function updateApt(id) {
 
 async function deleteApt(id) {
   if (!confirm('Excluir este agendamento permanentemente?')) return;
-  await fetch(`/api/admin/appointments/${id}`, { method: 'DELETE' });
+  await fetch(`/api/admin/appointments/${id}`, { method:'DELETE' });
   closeAptModal(); loadAppointments(); loadDashboard();
 }
 
-// ─── SERVIÇOS ───────────────────────────────────────────
+// Serviços
 async function loadServices() {
   const services = await fetch('/api/admin/services').then(r => r.json());
   const tb = document.getElementById('servicesTable');
@@ -453,17 +399,11 @@ async function loadServices() {
       <td style="color:var(--text-muted);font-size:.82rem;">${s.description||'—'}</td>
       <td>R$ ${s.price.toFixed(2)}</td>
       <td>${s.duration} min</td>
-      <td>
-        <span class="badge" style="background:${s.active ? 'var(--green-50)' : 'var(--neutral-100)'};color:${s.active ? 'var(--green-700)' : 'var(--text-muted)'}">
-          ${s.active ? 'Ativo' : 'Inativo'}
-        </span>
-      </td>
-      <td>
-        <div class="table-actions">
-          <button class="btn btn-secondary btn-sm" onclick='openServiceModal(${JSON.stringify(s)})'><i class="fa-solid fa-pen"></i></button>
-          <button class="btn btn-ghost btn-sm" onclick="deleteService(${s.id})" style="color:var(--red-500)"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </td>
+      <td><span class="badge" style="background:${s.active?'var(--green-50)':'var(--neutral-100)'};color:${s.active?'var(--green-700)':'var(--text-muted)'}">${s.active?'Ativo':'Inativo'}</span></td>
+      <td><div class="table-actions">
+        <button class="btn btn-secondary btn-sm" onclick='openServiceModal(${JSON.stringify(s)})'><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteService(${s.id})" style="color:var(--red-600)"><i class="fa-solid fa-trash"></i></button>
+      </div></td>
     </tr>
   `).join('');
 }
@@ -471,10 +411,10 @@ async function loadServices() {
 function openServiceModal(service) {
   document.getElementById('serviceModal').classList.add('open');
   document.getElementById('serviceModalTitle').textContent = service ? 'Editar serviço' : 'Novo serviço';
-  document.getElementById('serviceId').value = service ? service.id : '';
-  document.getElementById('serviceName').value = service ? service.name : '';
-  document.getElementById('serviceDesc').value = service ? service.description : '';
-  document.getElementById('servicePrice').value = service ? service.price : '';
+  document.getElementById('serviceId').value       = service ? service.id : '';
+  document.getElementById('serviceName').value     = service ? service.name : '';
+  document.getElementById('serviceDesc').value     = service ? service.description : '';
+  document.getElementById('servicePrice').value    = service ? service.price : '';
   document.getElementById('serviceDuration').value = service ? service.duration : 60;
   document.getElementById('serviceActive').checked = service ? service.active : true;
   document.getElementById('serviceSubmitBtn').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> ${service ? 'Atualizar' : 'Criar serviço'}`;
@@ -491,8 +431,9 @@ async function submitService() {
     active: document.getElementById('serviceActive').checked
   };
   if (!data.name || !data.price || !data.duration) return;
-  const url = id ? `/api/admin/services/${id}` : '/api/admin/services';
-  const r = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const r = await fetch(id ? `/api/admin/services/${id}` : '/api/admin/services', {
+    method: id ? 'PUT' : 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
+  });
   const res = await r.json();
   if (res.success) { closeServiceModal(); loadServices(); }
   else {
@@ -504,11 +445,11 @@ async function submitService() {
 
 async function deleteService(id) {
   if (!confirm('Excluir este serviço?')) return;
-  await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+  await fetch(`/api/admin/services/${id}`, { method:'DELETE' });
   loadServices();
 }
 
-// ─── CLIENTES ───────────────────────────────────────────
+// Clientes
 async function loadClients() {
   const clients = await fetch('/api/admin/clients').then(r => r.json());
   document.getElementById('clientCount').textContent = `${clients.length} cliente(s) cadastrado(s)`;
@@ -521,18 +462,18 @@ async function loadClients() {
     <tr>
       <td><strong>${c.name}</strong></td>
       <td>${c.email}</td>
-      <td style="color:var(--text-muted)">${c.phone || '—'}</td>
+      <td style="color:var(--text-muted)">${c.phone||'—'}</td>
       <td style="color:var(--text-muted)">${fmtDate(c.created_at.split('T')[0])}</td>
     </tr>
   `).join('');
 }
 
-// ─── CONFIGURAÇÕES ──────────────────────────────────────
+// Configurações
 async function loadSettings() {
   const s = await fetch('/api/admin/settings').then(r => r.json());
-  document.getElementById('salonName').value = s.salon_name;
-  document.getElementById('openTime').value = s.open_time;
-  document.getElementById('closeTime').value = s.close_time;
+  document.getElementById('salonName').value   = s.salon_name;
+  document.getElementById('openTime').value    = s.open_time;
+  document.getElementById('closeTime').value   = s.close_time;
   document.getElementById('slotDuration').value = s.slot_duration;
   [0,1,2,3,4,5,6].forEach(d => { document.getElementById('wd'+d).checked = s.working_days.includes(d); });
 }
@@ -541,27 +482,19 @@ document.getElementById('settingsForm').addEventListener('submit', async e => {
   e.preventDefault();
   const working_days = [0,1,2,3,4,5,6].filter(d => document.getElementById('wd'+d).checked);
   const r = await fetch('/api/admin/settings', {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    method:'PUT', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ salon_name: document.getElementById('salonName').value, open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value, slot_duration: document.getElementById('slotDuration').value, working_days })
   });
   const res = await r.json();
   const el = document.getElementById('settingsAlert');
-  el.innerHTML = res.success
-    ? '<i class="fa-solid fa-check-circle"></i> Configurações salvas com sucesso!'
-    : `<i class="fa-solid fa-circle-exclamation"></i> ${res.error}`;
+  el.innerHTML = res.success ? '<i class="fa-solid fa-check-circle"></i> Configurações salvas!' : `<i class="fa-solid fa-circle-exclamation"></i> ${res.error}`;
   el.className = `alert ${res.success ? 'alert-success' : 'alert-error'} show`;
   setTimeout(() => el.className = 'alert', 3500);
 });
 
-// ─── HELPERS ────────────────────────────────────────────
-function statusLabel(s) {
-  return { pending: 'Pendente', confirmed: 'Confirmado', cancelled: 'Cancelado', completed: 'Concluído' }[s] || s;
-}
-function fmtDate(d) {
-  if (!d) return '—';
-  const [y, m, day] = d.split('-');
-  return `${day}/${m}/${y}`;
-}
+function statusLabel(s) { return {pending:'Pendente',confirmed:'Confirmado',cancelled:'Cancelado',completed:'Concluído'}[s]||s; }
+function fmtDate(d) { if (!d) return '—'; const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
 </script>
 </body>
 </html>
+

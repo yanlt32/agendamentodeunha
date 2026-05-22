@@ -63,6 +63,22 @@
   ],
   "appointments": [
     {
+      "id": 2,
+      "user_id": 2,
+      "user_name": "yan tortelli",
+      "user_email": "ladeiatortelli8@outlook.com",
+      "service_id": 3,
+      "service_name": "Manicure + Pedicure",
+      "price": 70,
+      "duration": 120,
+      "date": "2026-06-01",
+      "time": "10:00",
+      "notes": "",
+      "status": "pending",
+      "created_at": "2026-05-22T00:06:00.066Z",
+      "updated_at": "2026-05-22T00:08:22.334Z"
+    },
+    {
       "id": 1,
       "user_id": 2,
       "user_name": "yan tortelli",
@@ -74,9 +90,25 @@
       "date": "2026-05-22",
       "time": "11:00",
       "notes": "",
-      "status": "confirmed",
+      "status": "completed",
       "created_at": "2026-05-21T22:06:11.972Z",
-      "updated_at": "2026-05-21T22:13:21.590Z"
+      "updated_at": "2026-05-22T00:08:40.609Z"
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "user_name": "yan tortelli",
+      "user_email": "ladeiatortelli8@outlook.com",
+      "service_id": 1,
+      "service_name": "Manicure",
+      "price": 35,
+      "duration": 60,
+      "date": "2026-05-27",
+      "time": "09:00",
+      "notes": "",
+      "status": "pending",
+      "created_at": "2026-05-22T00:12:40.636Z",
+      "updated_at": "2026-05-22T00:12:40.636Z"
     }
   ],
   "settings": {
@@ -95,6 +127,6 @@
   },
   "next_ids": {
     "users": 3,
-    "appointments": 2
+    "appointments": 4
   }
 }
