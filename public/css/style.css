@@ -682,20 +682,93 @@ footer {
 }
 footer strong { color: var(--neutral-100); }
 
+/* ─── SUCCESS CHECK ─────────────────────────────────── */
+.success-check {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--green-50), var(--green-100));
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+  animation: successPop .4s var(--ease);
+}
+.success-check i { font-size: 2rem; color: var(--green-600); }
+@keyframes successPop {
+  from { transform: scale(.6); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+
+/* ─── STAT SUB-LABEL ─────────────────────────────────── */
+.stat-sub {
+  font-size: .72rem; color: var(--text-muted); margin-top: .35rem;
+  display: flex; gap: .5rem; flex-wrap: wrap; align-items: center;
+}
+.stat-sub i { font-size: .6rem; }
+.stat-wide { grid-column: span 2; }
+
 /* ─── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 768px) {
-  .admin-layout { flex-direction: column; height: auto; overflow: visible; }
+  /* bottom nav */
+  body { padding-bottom: 66px; }
+  .admin-layout { display: block; height: auto; min-height: calc(100vh - 62px); overflow: visible; }
+
   .sidebar {
-    width: 100%; flex-direction: row; flex-wrap: nowrap; overflow-x: auto;
-    padding: .5rem; border-right: none; border-bottom: 1px solid var(--border);
-    scrollbar-width: none;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+    width: 100%; height: 66px;
+    flex-direction: row; justify-content: stretch;
+    border-right: none; border-top: 1px solid var(--border);
+    background: rgba(255,255,255,.97);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -4px 24px rgba(180,60,90,.10);
+    padding: 0; overflow: visible; flex-shrink: 0;
   }
-  .sidebar::-webkit-scrollbar { display: none; }
   .sidebar-section-label { display: none; }
-  .sidebar-item { flex-direction: column; gap: .2rem; padding: .5rem .7rem; min-width: 64px; font-size: .7rem; border-radius: var(--radius-sm); white-space: nowrap; }
-  .sidebar-item.active::before { display: none; }
-  .main-content { padding: 1rem; }
+  .sidebar-item {
+    flex: 1; flex-direction: column; justify-content: center; align-items: center;
+    gap: .22rem; padding: .3rem .15rem; border-radius: 0;
+    font-size: .62rem; font-weight: 600; white-space: nowrap; min-width: 0;
+  }
+  .sidebar-item i { font-size: 1.1rem; width: auto; }
+  .sidebar-item.active { background: transparent; color: var(--rose-600); }
+  .sidebar-item.active::before {
+    top: 0; bottom: auto; left: 0; right: 0; width: 100%; height: 2.5px;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .main-content { padding: 1rem 1rem 1.5rem; overflow: visible; }
+
+  /* stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .7rem; margin-bottom: 1.25rem; }
+  .stat-card { padding: 1rem; }
+  .stat-icon { width: 32px; height: 32px; margin-bottom: .65rem; font-size: .82rem; }
+  .stat-value { font-size: 1.45rem; }
+  .stat-label { font-size: .72rem; }
+  .stat-wide { grid-column: span 2; }
+  .stat-sub { gap: .4rem; }
+
+  /* layout helpers */
   .grid-2 { grid-template-columns: 1fr; }
-  .hero { padding: 4.5rem 1.25rem 4rem; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .page-header { flex-direction: column; align-items: flex-start; gap: .6rem; }
+  .page-title { font-size: 1.15rem; }
+
+  /* filters */
+  .filter-bar { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; align-items: end; padding: .75rem; }
+  .filter-bar > .btn { grid-column: span 2; justify-self: start; }
+
+  /* apt cards */
+  .apt-card { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  .apt-actions { width: 100%; justify-content: space-between; }
+  .apt-details { gap: .55rem; }
+
+  /* navbar */
+  .navbar { padding: 0 1rem; }
+
+  /* hero */
+  .hero { padding: 4rem 1.25rem 3.5rem; }
+  .hero h1 { font-size: 2rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { gap: .55rem; }
+  .stat-card { padding: .85rem .8rem; }
+  .stat-value { font-size: 1.3rem; }
+  .navbar .brand-name { display: none; }
 }

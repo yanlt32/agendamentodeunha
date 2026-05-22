@@ -66,7 +66,8 @@
         <div class="stat-card"><div class="stat-icon amber"><i class="fa-solid fa-sun"></i></div><div class="stat-value" id="st-today">—</div><div class="stat-label">Hoje</div></div>
         <div class="stat-card"><div class="stat-icon rose"><i class="fa-regular fa-clock"></i></div><div class="stat-value" id="st-pending">—</div><div class="stat-label">Pendentes</div></div>
         <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-value" id="st-confirmed">—</div><div class="stat-label">Confirmados</div></div>
-        <div class="stat-card"><div class="stat-icon mauve"><i class="fa-solid fa-money-bill-wave"></i></div><div class="stat-value" id="st-revenue">—</div><div class="stat-label">Receita confirmada</div></div>
+        <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-star"></i></div><div class="stat-value" id="st-completed">—</div><div class="stat-label">Concluídos</div></div>
+        <div class="stat-card stat-wide"><div class="stat-icon mauve"><i class="fa-solid fa-money-bill-wave"></i></div><div class="stat-value" id="st-revenue">—</div><div class="stat-label">Receita total</div><div class="stat-sub" id="st-revenue-sub"></div></div>
       </div>
       <div class="card">
         <div class="card-header">
@@ -176,6 +177,11 @@
                 <option value="60">60 minutos</option>
                 <option value="90">90 minutos</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Taxa de agendamento (R$)</label>
+              <input type="number" class="form-input" id="bookingFee" min="0" step="0.01" placeholder="20.00">
+              <p style="font-size:.74rem;color:var(--text-muted);margin-top:.3rem;"><i class="fa-solid fa-circle-info" style="color:var(--rose-400)"></i> Valor cobrado via PIX para garantir o horário. Descontado no atendimento.</p>
             </div>
             <div class="form-group">
               <label class="form-label">Dias de funcionamento</label>
@@ -288,12 +294,16 @@ async function loadDashboard() {
     fetch('/api/admin/stats').then(r => r.json()),
     fetch('/api/admin/appointments?date=' + today).then(r => r.json())
   ]);
-  document.getElementById('st-clients').textContent = stats.total_clients;
-  document.getElementById('st-total').textContent   = stats.total_appointments;
-  document.getElementById('st-today').textContent   = stats.today_appointments;
-  document.getElementById('st-pending').textContent = stats.pending;
+  document.getElementById('st-clients').textContent   = stats.total_clients;
+  document.getElementById('st-total').textContent     = stats.total_appointments;
+  document.getElementById('st-today').textContent     = stats.today_appointments;
+  document.getElementById('st-pending').textContent   = stats.pending;
   document.getElementById('st-confirmed').textContent = stats.confirmed;
-  document.getElementById('st-revenue').textContent = 'R$ ' + stats.revenue.toFixed(2);
+  document.getElementById('st-completed').textContent = stats.completed;
+  document.getElementById('st-revenue').textContent   = 'R$ ' + stats.revenue.toFixed(2);
+  document.getElementById('st-revenue-sub').innerHTML =
+    `<i class="fa-solid fa-circle-check" style="color:var(--green-600)"></i> Confirmados: R$ ${stats.revenue_confirmed.toFixed(2)}&ensp;`+
+    `<i class="fa-solid fa-star" style="color:var(--blue-600)"></i> Concluídos: R$ ${stats.revenue_completed.toFixed(2)}`;
   renderAptTable('todayTable', apts, false);
 }
 
@@ -471,10 +481,11 @@ async function loadClients() {
 // Configurações
 async function loadSettings() {
   const s = await fetch('/api/admin/settings').then(r => r.json());
-  document.getElementById('salonName').value   = s.salon_name;
-  document.getElementById('openTime').value    = s.open_time;
-  document.getElementById('closeTime').value   = s.close_time;
+  document.getElementById('salonName').value    = s.salon_name;
+  document.getElementById('openTime').value     = s.open_time;
+  document.getElementById('closeTime').value    = s.close_time;
   document.getElementById('slotDuration').value = s.slot_duration;
+  document.getElementById('bookingFee').value   = s.booking_fee ?? 20;
   [0,1,2,3,4,5,6].forEach(d => { document.getElementById('wd'+d).checked = s.working_days.includes(d); });
 }
 
@@ -483,7 +494,7 @@ document.getElementById('settingsForm').addEventListener('submit', async e => {
   const working_days = [0,1,2,3,4,5,6].filter(d => document.getElementById('wd'+d).checked);
   const r = await fetch('/api/admin/settings', {
     method:'PUT', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ salon_name: document.getElementById('salonName').value, open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value, slot_duration: document.getElementById('slotDuration').value, working_days })
+    body: JSON.stringify({ salon_name: document.getElementById('salonName').value, open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value, slot_duration: document.getElementById('slotDuration').value, working_days, booking_fee: document.getElementById('bookingFee').value })
   });
   const res = await r.json();
   const el = document.getElementById('settingsAlert');

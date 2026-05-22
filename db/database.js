@@ -21,7 +21,8 @@ db.defaults({
     open_time: '08:00',
     close_time: '18:00',
     slot_duration: 60,
-    working_days: [1, 2, 3, 4, 5, 6]
+    working_days: [1, 2, 3, 4, 5, 6],
+    booking_fee: 20
   },
   next_ids: { users: 1, appointments: 1 }
 }).write();

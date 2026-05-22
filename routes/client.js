@@ -3,6 +3,12 @@ const router = express.Router();
 const db = require('../db/database');
 const { requireClient } = require('../middleware/auth');
 
+// Configurações públicas (taxa, nome)
+router.get('/settings', (req, res) => {
+  const s = db.get('settings').value();
+  res.json({ booking_fee: s.booking_fee || 20, salon_name: s.salon_name });
+});
+
 // Listar serviços disponíveis
 router.get('/services', (req, res) => {
   const services = db.get('services').filter({ active: true }).value();
@@ -27,14 +33,22 @@ router.get('/available-slots', (req, res) => {
   const closeMins = closeH * 60 + closeM;
 
   const booked = db.get('appointments')
-    .filter(a => a.date === date && ['pending', 'confirmed'].includes(a.status))
+    .filter(a => a.date === date && ['pending', 'confirmed', 'completed'].includes(a.status))
     .value();
+
+  const isToday = date === new Date().toISOString().slice(0, 10);
+  const nowMins = isToday ? new Date().getHours() * 60 + new Date().getMinutes() : -1;
 
   const slots = [];
   for (let m = openMins; m + service.duration <= closeMins; m += settings.slot_duration) {
     const h = String(Math.floor(m / 60)).padStart(2, '0');
     const min = String(m % 60).padStart(2, '0');
     const time = `${h}:${min}`;
+
+    if (isToday && m <= nowMins) {
+      slots.push({ time, available: false, service_name: null, past: true });
+      continue;
+    }
 
     const conflictApt = booked.find(a => {
       const [ah, am] = a.time.split(':').map(Number);
@@ -65,7 +79,7 @@ router.post('/appointments', requireClient, (req, res) => {
   if (!settings.working_days.includes(dayOfWeek)) return res.status(400).json({ error: 'Data não disponível' });
 
   const booked = db.get('appointments')
-    .filter(a => a.date === date && ['pending', 'confirmed'].includes(a.status))
+    .filter(a => a.date === date && ['pending', 'confirmed', 'completed'].includes(a.status))
     .value();
 
   const [th, tm] = time.split(':').map(Number);

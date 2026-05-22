@@ -191,6 +191,27 @@
   </main>
 </div>
 
+<!-- Modal Sucesso -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-body" style="padding:2.5rem 1.75rem 2rem;text-align:center;">
+      <div class="success-check">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 style="font-family:var(--font-display);font-size:1.25rem;font-weight:600;color:var(--neutral-900);margin-bottom:.5rem;">Agendamento realizado!</h3>
+      <p id="successDetail" style="font-size:.84rem;color:var(--text-muted);line-height:1.65;margin-bottom:1.75rem;"></p>
+      <div style="display:flex;flex-direction:column;gap:.55rem;">
+        <button class="btn btn-primary btn-full btn-lg" onclick="goToMyAppointments()">
+          <i class="fa-regular fa-calendar-check"></i> Ver meus agendamentos
+        </button>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById('successModal').classList.remove('open')">
+          Fazer novo agendamento
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal PIX -->
 <div class="modal-overlay" id="pixModal">
   <div class="modal" style="max-width:420px;">
@@ -205,8 +226,8 @@
 </div>
 
 <script>
-const BOOKING_FEE = 20;
-const PIX_KEY     = 'studio.unhas@pix.com.br'; // chave PIX do salão
+let BOOKING_FEE = 20;
+const PIX_KEY   = 'studio.unhas@pix.com.br';
 
 let currentUser     = null;
 let allServices     = [];
@@ -216,7 +237,9 @@ let selectedTime    = null;
 let allMyApts       = [];
 let pendingNotes    = '';
 
-// ─── AUTH ────────────────────────────────────────────────
+// ─── AUTH + SETTINGS ─────────────────────────────────────
+fetch('/api/client/settings').then(r => r.json()).then(s => { BOOKING_FEE = s.booking_fee || 20; }).catch(() => {});
+
 fetch('/api/auth/me').then(r => r.json()).then(d => {
   if (!d.user) { window.location.href = '/'; return; }
   currentUser = d.user;
@@ -406,7 +429,7 @@ function openPixModal() {
     <div class="pix-panel active" id="ppanelQr">
       <div class="pix-qr-wrap">
         <img src="${qrUrl}" alt="QR Code PIX" onerror="this.style.display='none';document.getElementById('qrFallback').style.display='block'">
-        <div id="qrFallback" style="display:none;width:180px;height:180px;background:var(--blush-100);border-radius:var(--radius);margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--rose-300);">
+        <div id="qrFallback" style="width:180px;height:180px;background:var(--blush-100);border-radius:var(--radius);margin:0 auto;align-items:center;justify-content:center;font-size:3rem;color:var(--rose-300);display:none;">
           <i class="fa-solid fa-qrcode"></i>
         </div>
         <div class="pix-qr-hint">
@@ -490,9 +513,12 @@ async function confirmBookingAfterPix() {
 
   if (data.success) {
     closePixModal();
-    const alertEl = document.getElementById('bookingAlert');
-    alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Agendamento realizado com sucesso! Aguarde a confirmação do salão.';
-    alertEl.className = 'alert alert-success show';
+    // Preenche o modal de sucesso
+    const [y, m, d] = selectedDate.split('-');
+    document.getElementById('successDetail').innerHTML =
+      `<strong>${selectedService.name}</strong><br>${d}/${m}/${y} às ${selectedTime}<br><br>` +
+      `Seu horário está reservado. Aguarde a confirmação do salão.`;
+    document.getElementById('successModal').classList.add('open');
     // Reset
     selectedService = null; selectedDate = null; selectedTime = null; pendingNotes = '';
     document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
@@ -504,12 +530,17 @@ async function confirmBookingAfterPix() {
       document.getElementById(id).className = i === 0 ? 'step-num active' : 'step-num';
     });
     updateSummary();
-    setTimeout(() => alertEl.className = 'alert', 7000);
   } else {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Já realizei o pagamento';
     alert('Erro: ' + data.error);
   }
+}
+
+function goToMyAppointments() {
+  document.getElementById('successModal').classList.remove('open');
+  const btn = document.querySelectorAll('.sidebar-item')[1];
+  showSection('meus', btn);
 }
 
 // Fechar ao clicar fora

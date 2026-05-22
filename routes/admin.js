@@ -9,13 +9,18 @@ router.get('/stats', requireAdmin, (req, res) => {
   const users = db.get('users').filter({ role: 'client' }).value();
   const today = new Date().toISOString().split('T')[0];
 
+  const revenue_confirmed = appointments.filter(a => a.status === 'confirmed').reduce((s, a) => s + (a.price || 0), 0);
+  const revenue_completed = appointments.filter(a => a.status === 'completed').reduce((s, a) => s + (a.price || 0), 0);
   res.json({
     total_clients: users.length,
     total_appointments: appointments.length,
     today_appointments: appointments.filter(a => a.date === today).length,
     pending: appointments.filter(a => a.status === 'pending').length,
     confirmed: appointments.filter(a => a.status === 'confirmed').length,
-    revenue: appointments.filter(a => a.status === 'confirmed').reduce((s, a) => s + (a.price || 0), 0)
+    completed: appointments.filter(a => a.status === 'completed').length,
+    revenue_confirmed,
+    revenue_completed,
+    revenue: revenue_confirmed + revenue_completed
   });
 });
 
@@ -89,8 +94,8 @@ router.get('/settings', requireAdmin, (req, res) => {
 });
 
 router.put('/settings', requireAdmin, (req, res) => {
-  const { salon_name, open_time, close_time, slot_duration, working_days } = req.body;
-  db.set('settings', { salon_name, open_time, close_time, slot_duration: parseInt(slot_duration), working_days }).write();
+  const { salon_name, open_time, close_time, slot_duration, working_days, booking_fee } = req.body;
+  db.set('settings', { salon_name, open_time, close_time, slot_duration: parseInt(slot_duration), working_days, booking_fee: parseFloat(booking_fee) || 20 }).write();
   res.json({ success: true });
 });
 
