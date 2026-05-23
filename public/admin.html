@@ -372,7 +372,8 @@ function openAptModal(apt) {
   `;
   document.getElementById('aptModalFooter').innerHTML = `
     <button class="btn btn-danger btn-sm" onclick="deleteApt(${apt.id})"><i class="fa-solid fa-trash"></i> Excluir</button>
-    <div style="display:flex;gap:.5rem;">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="sendReminder(${apt.id})" title="Enviar lembrete via WhatsApp"><i class="fa-brands fa-whatsapp"></i> Lembrete</button>
       <button class="btn btn-secondary" onclick="closeAptModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="updateApt(${apt.id})"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
     </div>
@@ -393,6 +394,23 @@ async function deleteApt(id) {
   if (!confirm('Excluir este agendamento permanentemente?')) return;
   await fetch(`/api/admin/appointments/${id}`, { method:'DELETE' });
   closeAptModal(); loadAppointments(); loadDashboard();
+}
+
+async function sendReminder(id) {
+  const btn = event.currentTarget;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  const r = await fetch(`/api/admin/appointments/${id}/remind`, { method: 'POST' });
+  const data = await r.json();
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Lembrete';
+  if (data.success) {
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Enviado!';
+    btn.style.color = 'var(--green-600)';
+    setTimeout(() => { btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Lembrete'; btn.style.color = ''; }, 3000);
+  } else {
+    alert('Erro: ' + (data.error || 'Falha ao enviar'));
+  }
 }
 
 // Serviços

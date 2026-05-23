@@ -124,6 +124,34 @@ router.get('/appointments', requireClient, (req, res) => {
   res.json(list);
 });
 
+// Perfil do cliente
+router.get('/profile', requireClient, (req, res) => {
+  const user = db.get('users').find({ id: req.user.id }).value();
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+  res.json({ id: user.id, name: user.name, email: user.email, phone: user.phone, created_at: user.created_at });
+});
+
+router.put('/profile', requireClient, (req, res) => {
+  const { name, phone, password, new_password } = req.body;
+  if (!name || !phone) return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
+
+  const user = db.get('users').find({ id: req.user.id }).value();
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+  const updates = { name, phone };
+
+  if (new_password) {
+    const bcrypt = require('bcryptjs');
+    if (!password) return res.status(400).json({ error: 'Informe a senha atual para alterá-la' });
+    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Senha atual incorreta' });
+    if (new_password.length < 6) return res.status(400).json({ error: 'Nova senha deve ter pelo menos 6 caracteres' });
+    updates.password = bcrypt.hashSync(new_password, 10);
+  }
+
+  db.get('users').find({ id: req.user.id }).assign(updates).write();
+  res.json({ success: true });
+});
+
 // Cancelar agendamento
 router.patch('/appointments/:id/cancel', requireClient, (req, res) => {
   const id = parseInt(req.params.id);

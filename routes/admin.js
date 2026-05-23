@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const { requireAdmin } = require('../middleware/auth');
+const { sendManualReminder } = require('../services/reminders');
 
 // Dashboard stats
 router.get('/stats', requireAdmin, (req, res) => {
@@ -48,6 +49,17 @@ router.delete('/appointments/:id', requireAdmin, (req, res) => {
   const id = parseInt(req.params.id);
   db.get('appointments').remove({ id }).write();
   res.json({ success: true });
+});
+
+router.post('/appointments/:id/remind', requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const result = await sendManualReminder(id);
+    if (result && result.error) return res.status(400).json({ error: result.error });
+    res.json({ success: true, result });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Serviços

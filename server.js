@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const { startReminderScheduler } = require('./services/reminders');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,4 +29,5 @@ app.get('*',       noCache, (req, res) => res.sendFile(path.join(__dirname, 'pub
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   console.log('Admin padrão: admin@salon.com / admin123');
+  startReminderScheduler();
 });

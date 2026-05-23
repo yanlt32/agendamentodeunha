@@ -68,6 +68,9 @@
     <button class="sidebar-item" onclick="showSection('meus', this)">
       <i class="fa-regular fa-calendar-check"></i> Meus agendamentos
     </button>
+    <button class="sidebar-item" onclick="showSection('perfil', this)">
+      <i class="fa-regular fa-user"></i> Meu perfil
+    </button>
   </aside>
 
   <main class="main-content">
@@ -188,6 +191,69 @@
       </div>
     </section>
 
+    <!-- Perfil -->
+    <section class="page-section" id="sec-perfil">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Meu perfil</div>
+          <div class="page-subtitle">Suas informações pessoais</div>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:480px;">
+        <div class="card-body">
+          <div class="alert" id="profileAlert"></div>
+
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
+            <div style="width:54px;height:54px;background:linear-gradient(135deg,var(--rose-400),var(--rose-600));border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i class="fa-solid fa-user" style="color:#fff;font-size:1.2rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:.95rem;color:var(--neutral-900)" id="profileDisplayName">—</div>
+              <div style="font-size:.78rem;color:var(--text-muted)" id="profileDisplayEmail">—</div>
+            </div>
+          </div>
+
+          <form id="profileForm">
+            <div class="form-group">
+              <label class="form-label">Nome completo</label>
+              <input type="text" class="form-input" id="profileName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-input" id="profileEmail" disabled style="background:var(--blush-50);color:var(--text-muted);">
+              <p style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;"><i class="fa-solid fa-lock" style="font-size:.65rem;"></i> E-mail não pode ser alterado</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone (WhatsApp) <span style="color:var(--rose-500);">*</span></label>
+              <input type="tel" class="form-input" id="profilePhone" placeholder="(11) 99999-9999" required>
+              <p style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;"><i class="fa-brands fa-whatsapp" style="color:var(--green-600);"></i> Usado para enviar lembretes de agendamento</p>
+            </div>
+
+            <details style="margin-bottom:1rem;">
+              <summary style="font-size:.82rem;font-weight:600;color:var(--neutral-700);cursor:pointer;padding:.5rem 0;user-select:none;">
+                <i class="fa-solid fa-lock" style="color:var(--rose-400);margin-right:.3rem;"></i> Alterar senha
+              </summary>
+              <div style="padding-top:.75rem;display:flex;flex-direction:column;gap:.75rem;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Senha atual</label>
+                  <input type="password" class="form-input" id="profileCurrentPwd" placeholder="••••••••">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Nova senha</label>
+                  <input type="password" class="form-input" id="profileNewPwd" placeholder="Mínimo 6 caracteres" minlength="6">
+                </div>
+              </div>
+            </details>
+
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-floppy-disk"></i> Salvar alterações
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -258,6 +324,7 @@ function showSection(name, el) {
   document.getElementById('sec-' + name).classList.add('active');
   el.classList.add('active');
   if (name === 'meus') loadMyAppointments();
+  if (name === 'perfil') loadProfile();
 }
 
 // ─── SERVIÇOS ────────────────────────────────────────────
@@ -602,6 +669,64 @@ async function cancelApt(id) {
 function statusLabel(s) {
   return { pending:'Pendente', confirmed:'Confirmado', cancelled:'Cancelado', completed:'Concluído' }[s] || s;
 }
+
+// ─── PERFIL ───────────────────────────────────────────
+async function loadProfile() {
+  try {
+    const r = await fetch('/api/client/profile');
+    const profile = await r.json();
+    if (!r.ok || profile.error) {
+      document.getElementById('profileAlert').innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${profile.error || 'Erro ao carregar perfil'}`;
+      document.getElementById('profileAlert').className = 'alert alert-error show';
+      return;
+    }
+    document.getElementById('profileName').value              = profile.name  || '';
+    document.getElementById('profileEmail').value             = profile.email || '';
+    document.getElementById('profilePhone').value             = profile.phone || '';
+    document.getElementById('profileDisplayName').textContent = profile.name  || '';
+    document.getElementById('profileDisplayEmail').textContent= profile.email || '';
+  } catch {
+    document.getElementById('profileAlert').innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Erro de conexão ao carregar perfil.';
+    document.getElementById('profileAlert').className = 'alert alert-error show';
+  }
+}
+
+document.getElementById('profileForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Salvando...';
+
+  const body = {
+    name: document.getElementById('profileName').value,
+    phone: document.getElementById('profilePhone').value,
+    password: document.getElementById('profileCurrentPwd').value || undefined,
+    new_password: document.getElementById('profileNewPwd').value || undefined
+  };
+
+  const r = await fetch('/api/client/profile', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await r.json();
+  const alertEl = document.getElementById('profileAlert');
+
+  if (data.success) {
+    alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Perfil atualizado com sucesso!';
+    alertEl.className = 'alert alert-success show';
+    document.getElementById('profileDisplayName').textContent = body.name;
+    document.getElementById('clientName').textContent = body.name.split(' ')[0];
+    document.getElementById('profileCurrentPwd').value = '';
+    document.getElementById('profileNewPwd').value = '';
+    setTimeout(() => alertEl.className = 'alert', 4000);
+  } else {
+    alertEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${data.error}`;
+    alertEl.className = 'alert alert-error show';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar alterações';
+});
 </script>
 </body>
 </html>

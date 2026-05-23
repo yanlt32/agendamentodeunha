@@ -7,7 +7,7 @@ const { SECRET } = require('../middleware/auth');
 
 router.post('/register', (req, res) => {
   const { name, email, password, phone } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
+  if (!name || !email || !password || !phone) return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
 
   const exists = db.get('users').find({ email }).value();
   if (exists) return res.status(400).json({ error: 'E-mail já cadastrado' });

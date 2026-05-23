@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(docker --version)",
+      "PowerShell(docker stop evolution-api)",
+      "PowerShell(docker rm evolution-api)"
+    ]
+  }
+}
