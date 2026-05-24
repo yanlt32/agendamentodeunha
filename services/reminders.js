@@ -1,155 +1,91 @@
 const cron = require('node-cron');
-const https = require('https');
-const http = require('http');
 const db = require('../db/database');
+const { sendWhatsApp } = require('./whatsapp');
 
-const EVO_URL      = process.env.EVOLUTION_API_URL  || '';
-const EVO_KEY      = process.env.EVOLUTION_API_KEY  || '';
-const EVO_INSTANCE = process.env.EVOLUTION_INSTANCE || '';
-
-function formatPhone(raw) {
-  let d = (raw || '').replace(/\D/g, '');
-  if (d.startsWith('0')) d = d.slice(1);
-  if (!d.startsWith('55')) d = '55' + d;
-  return d;
-}
-
-function sendWhatsApp(phone, message) {
-  const number = formatPhone(phone);
-  if (!number || number.length < 12) {
-    console.log(`[Reminder] Número inválido ignorado: ${phone}`);
-    return Promise.resolve({ skipped: true });
+function buildMessage(apt, type) {
+  const date = apt.date.split('-').reverse().join('/');
+  if (type === '1day') {
+    return `Olá ${apt.user_name}! 😊\n\nLembrete: você tem um agendamento amanhã (${date}) às ${apt.time} para *${apt.service_name}*.\n\nQualquer dúvida, estamos à disposição!`;
   }
-
-  if (!EVO_URL || !EVO_KEY || !EVO_INSTANCE) {
-    console.log(`[Reminder] Evolution API não configurada. Simulando envio para ${number}:\n${message}`);
-    return Promise.resolve({ simulated: true });
-  }
-
-  const body = JSON.stringify({ number, textMessage: { text: message } });
-  let parsedUrl;
-  try { parsedUrl = new URL(`${EVO_URL}/message/sendText/${EVO_INSTANCE}`); }
-  catch { console.error('[Reminder] EVOLUTION_API_URL inválida'); return Promise.resolve(); }
-
-  const isHttps = parsedUrl.protocol === 'https:';
-  const lib = isHttps ? https : http;
-
-  return new Promise((resolve) => {
-    const req = lib.request({
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || (isHttps ? 443 : 80),
-      path: parsedUrl.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': EVO_KEY,
-        'Content-Length': Buffer.byteLength(body)
-      }
-    }, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        console.log(`[Reminder] Enviado para ${number} — status ${res.statusCode}`);
-        resolve({ status: res.statusCode });
-      });
-    });
-    req.on('error', err => { console.error('[Reminder] Erro HTTP:', err.message); resolve({ error: err.message }); });
-    req.write(body);
-    req.end();
-  });
-}
-
-function fmtDate(s) {
-  const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`;
-}
-
-async function sendReminder(apt, type) {
-  const user = db.get('users').find({ id: apt.user_id }).value();
-  if (!user || !user.phone) return { skipped: 'sem telefone' };
-
-  const salon = (db.get('settings').value().salon_name) || 'Studio de Unhas';
-  const first = apt.user_name.split(' ')[0];
-
-  const msg = type === '1day'
-    ? `Olá, ${first}! 😊 Lembrando que seu agendamento é *amanhã*.\n\n💅 *${apt.service_name}*\n📅 ${fmtDate(apt.date)} às ${apt.time}\n⏱ Duração: ${apt.duration} min\n\nCaso precise cancelar, entre em contato com antecedência.\n\n— ${salon}`
-    : `Olá, ${first}! ✨ Seu atendimento é em aproximadamente *2 horas*.\n\n💅 *${apt.service_name}*\n⏰ Hoje às ${apt.time}\n\nTe esperamos!\n\n— ${salon}`;
-
-  const result = await sendWhatsApp(user.phone, msg);
-
-  const sent = Array.isArray(apt.reminders_sent) ? apt.reminders_sent : [];
-  db.get('appointments').find({ id: apt.id })
-    .assign({ reminders_sent: [...sent, type] })
-    .write();
-
-  return result;
+  return `Olá ${apt.user_name}! ⏰\n\nSeu agendamento de *${apt.service_name}* é em 2 horas — hoje às ${apt.time}.\n\nTe esperamos! 💅`;
 }
 
 async function sendOneDayReminders() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const dateStr = tomorrow.toISOString().slice(0, 10);
 
   const apts = db.get('appointments')
-    .filter(a => a.date === tomorrowStr && ['pending', 'confirmed'].includes(a.status))
+    .filter(a => a.date === dateStr && ['pending', 'confirmed'].includes(a.status))
     .value();
 
-  let count = 0;
   for (const apt of apts) {
     const sent = apt.reminders_sent || [];
     if (sent.includes('1day')) continue;
-    await sendReminder(apt, '1day');
-    count++;
+
+    const user = db.get('users').find({ id: apt.user_id }).value();
+    if (!user || !user.phone) continue;
+
+    try {
+      await sendWhatsApp(user.phone, buildMessage(apt, '1day'));
+      db.get('appointments').find({ id: apt.id })
+        .assign({ reminders_sent: [...sent, '1day'] }).write();
+      console.log(`[Lembrete 1dia] Enviado para ${user.phone} - apt ${apt.id}`);
+    } catch (e) {
+      console.error(`[Lembrete 1dia] Erro apt ${apt.id}:`, e.message);
+    }
   }
-  console.log(`[Reminder] 1 dia antes: ${count} lembrete(s) enviado(s)`);
-  return count;
 }
 
 async function sendTwoHourReminders() {
   const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const target = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-  const targetMins = target.getHours() * 60 + target.getMinutes();
+  const today = now.toISOString().slice(0, 10);
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const targetMins = nowMins + 120;
 
   const apts = db.get('appointments')
-    .filter(a => {
-      if (a.date !== todayStr) return false;
-      if (!['pending', 'confirmed'].includes(a.status)) return false;
-      const [ah, am] = a.time.split(':').map(Number);
-      return Math.abs((ah * 60 + am) - targetMins) <= 10;
-    })
+    .filter(a => a.date === today && ['pending', 'confirmed'].includes(a.status))
     .value();
 
-  let count = 0;
   for (const apt of apts) {
+    const [h, m] = apt.time.split(':').map(Number);
+    const aptMins = h * 60 + m;
+    if (aptMins < targetMins - 10 || aptMins > targetMins + 10) continue;
+
     const sent = apt.reminders_sent || [];
-    if (sent.includes('2hours')) continue;
-    await sendReminder(apt, '2hours');
-    count++;
+    if (sent.includes('2h')) continue;
+
+    const user = db.get('users').find({ id: apt.user_id }).value();
+    if (!user || !user.phone) continue;
+
+    try {
+      await sendWhatsApp(user.phone, buildMessage(apt, '2h'));
+      db.get('appointments').find({ id: apt.id })
+        .assign({ reminders_sent: [...sent, '2h'] }).write();
+      console.log(`[Lembrete 2h] Enviado para ${user.phone} - apt ${apt.id}`);
+    } catch (e) {
+      console.error(`[Lembrete 2h] Erro apt ${apt.id}:`, e.message);
+    }
   }
-  console.log(`[Reminder] 2 horas antes: ${count} lembrete(s) enviado(s)`);
-  return count;
 }
 
 async function sendManualReminder(aptId) {
   const apt = db.get('appointments').find({ id: aptId }).value();
   if (!apt) return { error: 'Agendamento não encontrado' };
-  return await sendReminder(apt, 'manual');
+
+  const user = db.get('users').find({ id: apt.user_id }).value();
+  if (!user || !user.phone) return { error: 'Cliente sem telefone cadastrado' };
+
+  const date = apt.date.split('-').reverse().join('/');
+  const msg = `Olá ${apt.user_name}! 😊\n\nLembrete do seu agendamento:\n📅 ${date} às ${apt.time}\n💅 ${apt.service_name}\n\nQualquer dúvida estamos à disposição!`;
+
+  return sendWhatsApp(user.phone, msg);
 }
 
 function startReminderScheduler() {
-  // Todo dia às 09:00 — lembrete de 1 dia antes
-  cron.schedule('0 9 * * *', () => {
-    console.log('[Reminder] Disparando lembretes de 1 dia antes...');
-    sendOneDayReminders().catch(console.error);
-  }, { timezone: 'America/Sao_Paulo' });
-
-  // A cada hora cheia — lembrete de 2 horas antes
-  cron.schedule('0 * * * *', () => {
-    console.log('[Reminder] Verificando lembretes de 2 horas antes...');
-    sendTwoHourReminders().catch(console.error);
-  }, { timezone: 'America/Sao_Paulo' });
-
-  console.log('[Reminder] Agendador iniciado (09h diário + verificação horária).');
+  cron.schedule('0 9 * * *', sendOneDayReminders, { timezone: 'America/Sao_Paulo' });
+  cron.schedule('0 * * * *', sendTwoHourReminders, { timezone: 'America/Sao_Paulo' });
+  console.log('[Lembretes] Agendador iniciado');
 }
 
-module.exports = { startReminderScheduler, sendOneDayReminders, sendTwoHourReminders, sendManualReminder };
+module.exports = { startReminderScheduler, sendManualReminder };

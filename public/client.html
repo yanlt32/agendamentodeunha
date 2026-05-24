@@ -584,7 +584,7 @@ async function confirmBookingAfterPix() {
     const [y, m, d] = selectedDate.split('-');
     document.getElementById('successDetail').innerHTML =
       `<strong>${selectedService.name}</strong><br>${d}/${m}/${y} às ${selectedTime}<br><br>` +
-      `Seu horário está reservado. Aguarde a confirmação do salão.`;
+      `Seu agendamento está confirmado! Você receberá um lembrete via WhatsApp. 💕`;
     document.getElementById('successModal').classList.add('open');
     // Reset
     selectedService = null; selectedDate = null; selectedTime = null; pendingNotes = '';

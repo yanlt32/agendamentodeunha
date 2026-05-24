@@ -3,7 +3,8 @@
     "allow": [
       "PowerShell(docker --version)",
       "PowerShell(docker stop evolution-api)",
-      "PowerShell(docker rm evolution-api)"
+      "PowerShell(docker rm evolution-api)",
+      "PowerShell(\\(Get-Command git -ErrorAction SilentlyContinue\\).Source)"
     ]
   }
 }

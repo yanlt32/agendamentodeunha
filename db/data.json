@@ -7,95 +7,24 @@
       "password": "$2a$10$6ORniGEOQet5oVz67GezoeAz0B680wd4BTmuRbMqbSc3oBzbms75C",
       "phone": "",
       "role": "admin",
-      "created_at": "2026-05-21T22:01:09.013Z"
-    },
-    {
-      "id": 2,
-      "name": "yan tortelli",
-      "email": "ladeiatortelli8@gmail.com",
-      "password": "$2a$10$t6oeztfd3y7riCqMtW9FnujR0q1ju125pjBwpbMxGYfTcB6WMpeKC",
-      "phone": "11969329095",
-      "role": "client",
-      "created_at": "2026-05-23T18:46:23.790Z"
+      "created_at": "2026-05-24T00:00:00.000Z"
     }
   ],
   "services": [
-    {
-      "id": 1,
-      "name": "Manicure",
-      "description": "Esmaltação completa das unhas das mãos",
-      "price": 35,
-      "duration": 60,
-      "active": true
-    },
-    {
-      "id": 2,
-      "name": "Pedicure",
-      "description": "Esmaltação completa das unhas dos pés",
-      "price": 40,
-      "duration": 75,
-      "active": true
-    },
-    {
-      "id": 3,
-      "name": "Manicure + Pedicure",
-      "description": "Combo completo mãos e pés",
-      "price": 70,
-      "duration": 120,
-      "active": true
-    },
-    {
-      "id": 4,
-      "name": "Unhas em Gel",
-      "description": "Alongamento e esmaltação em gel",
-      "price": 120,
-      "duration": 150,
-      "active": true
-    },
-    {
-      "id": 5,
-      "name": "Nail Art",
-      "description": "Decoração artística personalizada",
-      "price": 15,
-      "duration": 30,
-      "active": true
-    }
+    { "id": 1, "name": "Manicure", "description": "Esmaltação completa das unhas das mãos", "price": 35, "duration": 60, "active": true },
+    { "id": 2, "name": "Pedicure", "description": "Esmaltação completa das unhas dos pés", "price": 40, "duration": 75, "active": true },
+    { "id": 3, "name": "Manicure + Pedicure", "description": "Combo completo mãos e pés", "price": 70, "duration": 120, "active": true },
+    { "id": 4, "name": "Unhas em Gel", "description": "Alongamento e esmaltação em gel", "price": 120, "duration": 150, "active": true },
+    { "id": 5, "name": "Nail Art", "description": "Decoração artística personalizada", "price": 15, "duration": 30, "active": true }
   ],
-  "appointments": [
-    {
-      "id": 1,
-      "user_id": 2,
-      "user_name": "yan tortelli",
-      "user_email": "ladeiatortelli8@outlook.com",
-      "service_id": 1,
-      "service_name": "Manicure",
-      "price": 35,
-      "duration": 60,
-      "date": "2026-05-23",
-      "time": "17:00",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2026-05-23T18:32:10.465Z",
-      "updated_at": "2026-05-23T18:32:10.465Z"
-    }
-  ],
+  "appointments": [],
   "settings": {
     "salon_name": "Studio de Unhas",
     "open_time": "08:00",
     "close_time": "18:00",
     "slot_duration": 60,
-    "working_days": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
+    "working_days": [1, 2, 3, 4, 5, 6],
     "booking_fee": 20
   },
-  "next_ids": {
-    "users": 3,
-    "appointments": 2
-  }
+  "next_ids": { "users": 2, "appointments": 1 }
 }

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const { requireClient } = require('../middleware/auth');
+const { sendWhatsApp } = require('../services/whatsapp');
 
 // Configurações públicas (taxa, nome)
 router.get('/settings', (req, res) => {
@@ -67,7 +68,7 @@ router.get('/available-slots', (req, res) => {
 });
 
 // Criar agendamento
-router.post('/appointments', requireClient, (req, res) => {
+router.post('/appointments', requireClient, async (req, res) => {
   const { service_id, date, time, notes } = req.body;
   if (!service_id || !date || !time) return res.status(400).json({ error: 'Preencha todos os campos' });
 
@@ -105,13 +106,22 @@ router.post('/appointments', requireClient, (req, res) => {
     date,
     time,
     notes: notes || '',
-    status: 'pending',
+    status: 'confirmed',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
 
   db.get('appointments').push(appointment).write();
   db.update('next_ids.appointments', n => n + 1).write();
+
+  // Envia WhatsApp de confirmação
+  const user = db.get('users').find({ id: req.user.id }).value();
+  if (user && user.phone) {
+    const [y, m, d] = date.split('-');
+    const msg = `Olá ${req.user.name}! 🎉\n\nSeu agendamento foi *confirmado*!\n\n📅 ${d}/${m}/${y} às ${time}\n💅 ${service.name}\n\nTe esperamos! 💕`;
+    sendWhatsApp(user.phone, msg).catch(() => {});
+  }
+
   res.json({ success: true, appointment });
 });
 
